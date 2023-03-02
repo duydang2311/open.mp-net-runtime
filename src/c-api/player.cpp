@@ -5,8 +5,10 @@
 #include <glm/geometric.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "Server/Components/Actors/actors.hpp"
+#include "Server/Components/Checkpoints/checkpoints.hpp"
 #include "Server/Components/Objects/objects.hpp"
 #include "Server/Components/TextDraws/textdraws.hpp"
+#include "Server/Components/Vehicles/vehicles.hpp"
 #include "component.hpp"
 #include "gtaquat.hpp"
 #include "network.hpp"
@@ -19,6 +21,14 @@
 #define GET_PLAYER_CHECKED(player_output, playerid)                                               \
 	IPlayer* player_output = MainComponent::getInstance()->getCore()->getPlayers().get(playerid); \
 	if (player_output == nullptr)
+
+#define GET_VEHICLE_CHECKED(vehicle_output, vehicleid)                                               \
+	IVehicle* vehicle_output = MainComponent::getInstance()->getVehiclesComponent()->get(vehicleid); \
+	if (vehicle_output == nullptr)
+
+#define GET_OBJECT_CHECKED(object_output, objectid)                                              \
+	IObject* object_output = MainComponent::getInstance()->getObjectsComponent()->get(objectid); \
+	if (object_output == nullptr)
 
 bool Player_SetSpawnInfo(int playerid, int team, int skin, float x, float y, float z, float rotation, int weapon1, int weapon1_ammo, int weapon2, int weapon2_ammo, int weapon3, int weapon3_ammo)
 {
@@ -109,22 +119,6 @@ bool Player_GetFacingAngle(int playerid, float* angle)
 	*angle = player->getRotation().ToEuler().z;
 	return true;
 }
-// bool Player_IsInRangeOfPoint(int playerid, float range, float x, float y, float z)
-// {
-// 	GET_PLAYER_CHECKED(player, playerid)
-// 	{
-// 		return false;
-// 	}
-// 	return glm::distance(player->getPosition(), glm::vec3(x, y, z)) <= range;
-// }
-// float Player_GetDistanceFromPoint(int playerid, float x, float y, float z)
-// {
-// 	GET_PLAYER_CHECKED(player, playerid)
-// 	{
-// 		return false;
-// 	}
-// 	return true;
-// }
 
 bool Player_IsStreamedIn(int playerid, int forplayerid)
 {
@@ -1066,3 +1060,623 @@ bool Player_SetChatBubble(int playerid, const char* text, int color, float drawd
 	}
 	return true;
 }
+
+bool Player_PutInVehicle(int playerid, int vehicleid, int seatid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_VEHICLE_CHECKED(vehicle, vehicleid)
+	{
+		return false;
+	}
+	vehicle->putPlayer(*player, seatid);
+	return true;
+}
+
+int Player_GetVehicleID(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return INVALID_VEHICLE_ID;
+	}
+	auto data = queryExtension<IPlayerVehicleData>(player);
+	if (data == nullptr)
+	{
+		return INVALID_VEHICLE_ID;
+	}
+	return data->getVehicle()->getID();
+}
+
+int Player_GetVehicleSeat(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return -1;
+	}
+	auto data = queryExtension<IPlayerVehicleData>(player);
+	if (data == nullptr)
+	{
+		return -1;
+	}
+	return data->getSeat();
+}
+
+bool Player_RemoveFromVehicle(int playerid, bool force)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->removeFromVehicle(force);
+	return true;
+}
+
+bool Player_ToggleControllable(int playerid, bool toggle)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setControllable(toggle);
+	return true;
+}
+
+bool Player_PlaySound(int playerid, uint32_t soundid, float x, float y, float z)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->playSound(soundid, glm::vec3(x, y, z));
+	return true;
+}
+
+bool Player_ApplyAnimation(int playerid, const char* anim_lib, const char* anim_name, float delta, bool loop, bool lock_x, bool lock_y, bool freeze, int time, int sync_type)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->applyAnimation(
+		AnimationData(delta, loop, lock_x, lock_y, freeze, time, anim_lib, anim_name), static_cast<PlayerAnimationSyncType>(sync_type));
+	return true;
+}
+
+bool Player_ClearAnimations(int playerid, int sync_type)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->clearAnimations(static_cast<PlayerAnimationSyncType>(sync_type));
+	return true;
+}
+
+uint16_t Player_GetAnimationIndex(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	return player->getAnimationData().ID;
+}
+
+int Player_GetSpecialAction(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return PlayerSpecialAction::SpecialAction_None;
+	}
+	return player->getAction();
+}
+
+bool Player_SetSpecialAction(int playerid, int actionid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setAction(static_cast<PlayerSpecialAction>(actionid));
+	return true;
+}
+
+bool Player_DisableRemoteVehicleCollisions(int playerid, bool collide)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setRemoteVehicleCollisions(collide);
+	return true;
+}
+
+bool Player_SetCheckpoint(int playerid, float x, float y, float z, float radius)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerCheckpointData>(player);
+	if (data == nullptr)
+	{
+		return false;
+	}
+
+	ICheckpointData& cp = data->getCheckpoint();
+	cp.setPosition(glm::vec3(x, y, z));
+	cp.setRadius(radius);
+	cp.enable();
+	return true;
+}
+
+bool Player_DisableCheckpoint(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerCheckpointData>(player);
+	if (data == nullptr)
+	{
+		return false;
+	}
+	data->getCheckpoint().disable();
+	return true;
+}
+
+bool Player_SetRaceCheckpoint(int playerid, int type, float x, float y, float z, float nextx, float nexty, float nextz, float radius)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerCheckpointData>(player);
+	if (data == nullptr)
+	{
+		return false;
+	}
+
+	IRaceCheckpointData& cp = data->getRaceCheckpoint();
+	cp.setPosition(glm::vec3(x, y, z));
+	cp.setNextPosition(glm::vec3(nextx, nexty, nextz));
+	cp.setRadius(radius);
+	cp.setType(static_cast<RaceCheckpointType>(type));
+	cp.enable();
+	return true;
+}
+
+bool Player_DisableRaceCheckpoint(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerCheckpointData>(player);
+	if (data == nullptr)
+	{
+		return false;
+	}
+	data->getRaceCheckpoint().disable();
+	return true;
+}
+
+bool Player_SetWorldBounds(int playerid, float x_max, float x_min, float y_max, float y_min)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setWorldBounds(glm::vec4(x_max, x_min, y_max, y_min));
+	return true;
+}
+
+bool PLayer_SetMarkerFor(int playerid, int showplayerid, int color)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool Player_ShowNameTagFor(int playerid, int showplayerid, bool show)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_CHECKED(showplayer, showplayerid)
+	{
+		return false;
+	}
+	player->toggleOtherNameTag(*showplayer, show);
+	return true;
+}
+
+bool Player_SetMapIcon(int playerid, int iconid, float x, float y, float z, int markertype, uint32_t color, int style)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setMapIcon(iconid, glm::vec3(x, y, z), markertype, Colour::FromRGBA(color), static_cast<MapIconStyle>(style));
+	return true;
+}
+
+bool Player_RemoveMapIcon(int playerid, int iconid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->unsetMapIcon(iconid);
+	return true;
+}
+
+bool Player_AllowTeleport(int playerid, bool allow)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->allowTeleport(allow);
+	return true;
+}
+
+bool Player_SetCameraPos(int playerid, float x, float y, float z)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setCameraPosition(glm::vec3(x, y, z));
+	return true;
+}
+
+bool Player_SetCameraLookAt(int playerid, float x, float y, float z, int cut_type)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setCameraLookAt(glm::vec3(x, y, z), static_cast<PlayerCameraCutType>(cut_type));
+	return true;
+}
+
+bool Player_SetCameraBehind(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setCameraBehind();
+	return true;
+}
+
+bool Player_GetCameraPos(int playerid, float* x, float* y, float* z)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto vec3 = player->getCameraPosition();
+	*x = vec3.x;
+	*y = vec3.y;
+	*z = vec3.z;
+	return true;
+}
+
+bool Player_GetCameraFrontVector(int playerid, float* x, float* y, float* z)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto vec3 = player->getCameraLookAt();
+	*x = vec3.x;
+	*y = vec3.y;
+	*z = vec3.z;
+	return true;
+}
+
+uint8_t Player_GetCameraMode(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return -1;
+	}
+	return player->getAimData().camMode;
+}
+
+bool Player_EnableCameraTarget(int playerid, bool enable)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->useCameraTargeting(enable);
+	return true;
+}
+
+int Player_GetCameraTargetObject(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return INVALID_OBJECT_ID;
+	}
+	auto object = player->getCameraTargetObject();
+	if (object == nullptr)
+	{
+		return INVALID_OBJECT_ID;
+	}
+	return object->getID();
+}
+
+int Player_GetCameraTargetVehicle(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return INVALID_VEHICLE_ID;
+	}
+	auto vehicle = player->getCameraTargetVehicle();
+	if (vehicle == nullptr)
+	{
+		return INVALID_VEHICLE_ID;
+	}
+	return vehicle->getID();
+}
+
+int Player_GetCameraTargetPlayer(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return INVALID_PLAYER_ID;
+	}
+	auto target = player->getCameraTargetPlayer();
+	if (target == nullptr)
+	{
+		return INVALID_PLAYER_ID;
+	}
+	return target->getID();
+}
+
+int Player_GetCameraTargetActor(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return INVALID_ACTOR_ID;
+	}
+	auto actor = player->getCameraTargetActor();
+	if (actor == nullptr)
+	{
+		return INVALID_ACTOR_ID;
+	}
+	return actor->getID();
+}
+
+float Player_GetCameraAspectRatio(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	return player->getAimData().aspectRatio;
+}
+
+float Player_GetCameraZoom(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	return player->getAimData().camZoom;
+}
+
+bool Player_AttachCameraToObject(int playerid, int objectid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_OBJECT_CHECKED(object, objectid)
+	{
+		return false;
+	}
+	player->attachCameraToObject(*object);
+	return true;
+}
+
+bool Player_InterpolateCameraPos(int playerid, float from_x, float from_y, float from_z, float to_x, float to_y, float to_z, int time, int cut_type)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->interpolateCameraPosition(glm::vec3(from_x, from_y, from_z), glm::vec3(to_x, to_y, to_z), time, static_cast<PlayerCameraCutType>(cut_type));
+	return true;
+}
+
+bool Player_InterpolateCameraLookAt(int playerid, float from_x, float from_y, float from_z, float to_x, float to_y, float to_z, int time, int cut_type)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->interpolateCameraLookAt(glm::vec3(from_x, from_y, from_z), glm::vec3(to_x, to_y, to_z), time, static_cast<PlayerCameraCutType>(cut_type));
+	return true;
+}
+
+bool Player_IsConnected(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool Player_IsInVehicle(int playerid, int vehicleid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerVehicleData>(player);
+	if (data == nullptr)
+	{
+		return false;
+	}
+	auto vehicle = data->getVehicle();
+	return vehicle != nullptr && vehicle->getID() == vehicleid;
+}
+
+bool Player_IsInAnyVehicle(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerVehicleData>(player);
+	return data != nullptr && data->getVehicle() != nullptr;
+}
+
+bool Player_IsInCheckpoint(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerCheckpointData>(player);
+	return data->getCheckpoint().isPlayerInside();
+}
+
+bool Player_IsInRaceCheckpoint(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	auto data = queryExtension<IPlayerCheckpointData>(player);
+	return data->getRaceCheckpoint().isPlayerInside();
+}
+
+bool Player_SetVirtualWorld(int playerid, int worldid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setVirtualWorld(worldid);
+	return true;
+}
+
+int Player_GetVirtualWorld(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	return player->getVirtualWorld();
+}
+
+bool Player_EnableStuntBonusFor(int playerid, bool enable)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->useStuntBonuses(enable);
+	return true;
+}
+
+bool Player_ToggleSpectating(int playerid, bool toggle)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->setSpectating(toggle);
+	return true;
+}
+
+bool Player_SpectatePlayer(int playerid, int targetplayerid, int mode)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_CHECKED(target, targetplayerid)
+	{
+		return false;
+	}
+	player->spectatePlayer(*target, static_cast<PlayerSpectateMode>(mode));
+	return true;
+}
+
+bool Player_StopRecordingData(int playerid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool Player_CreateExplosion(int playerid, float x, float y, float z, int type, float radius)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	player->createExplosion(glm::vec3(x, y, z), type, radius);
+	return true;
+}
+
+// bool Player_SpectateVehicle(int playerid, int targetvehicleid, int mode)
+// {
+// 	GET_PLAYER_CHECKED(player, playerid)
+// 	{
+// 		return false;
+// 	}
+// 	GET_VEHICLE_CHECKED(vehicle, targetvehicleid)
+// 	{
+// 		return false;
+// 	}
+// 	player->spectateVehicle(*vehicle, static_cast<PlayerSpectateMode>(mode));
+// 	return true;
+// }
+
+// bool Player_StartRecordingData(int playerid, int recordtype, const char* recordname)
+// {
+// 	GET_PLAYER_CHECKED(player, playerid)
+// 	{
+// 		return false;
+// 	}
+// 	return true;
+// }
+// bool Player_IsInRangeOfPoint(int playerid, float range, float x, float y, float z)
+// {
+// 	GET_PLAYER_CHECKED(player, playerid)
+// 	{
+// 		return false;
+// 	}
+// 	return glm::distance(player->getPosition(), glm::vec3(x, y, z)) <= range;
+// }
+// float Player_GetDistanceFromPoint(int playerid, float x, float y, float z)
+// {
+// 	GET_PLAYER_CHECKED(player, playerid)
+// 	{
+// 		return false;
+// 	}
+// 	return true;
+// }
+// bool GetAnimationName(int index, char* anim_lib, int anim_lib_size, char* anim_name, int anim_name_size)
+// {
+// 	GET_PLAYER_CHECKED(player, playerid)
+// 	{
+// 		return false;
+// 	}
+// 	return true;
+// }
