@@ -156,5 +156,3 @@ DLL_EXPORT bool Player_CreateExplosion(int playerid, float x, float y, float z, 
 // DLL_EXPORT bool Player_StartRecordingData(int playerid, int recordtype, const char* recordname);
 // DLL_EXPORT bool Player_StopRecordingData(int playerid);
 // DLL_EXPORT bool Player_EnableStuntBonusForAll(bool enable);
-// DLL_EXPORT bool Player_IsInRangeOfPoint(int playerid, float range, float x, float y, float z);
-// DLL_EXPORT float Player_GetDistanceFromPoint(int playerid, float x, float y, float z);

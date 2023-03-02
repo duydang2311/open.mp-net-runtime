@@ -1615,15 +1615,6 @@ bool Player_SpectatePlayer(int playerid, int targetplayerid, int mode)
 	return true;
 }
 
-bool Player_StopRecordingData(int playerid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
-}
-
 bool Player_CreateExplosion(int playerid, float x, float y, float z, int type, float radius)
 {
 	GET_PLAYER_CHECKED(player, playerid)
@@ -1634,19 +1625,19 @@ bool Player_CreateExplosion(int playerid, float x, float y, float z, int type, f
 	return true;
 }
 
-// bool Player_SpectateVehicle(int playerid, int targetvehicleid, int mode)
-// {
-// 	GET_PLAYER_CHECKED(player, playerid)
-// 	{
-// 		return false;
-// 	}
-// 	GET_VEHICLE_CHECKED(vehicle, targetvehicleid)
-// 	{
-// 		return false;
-// 	}
-// 	player->spectateVehicle(*vehicle, static_cast<PlayerSpectateMode>(mode));
-// 	return true;
-// }
+bool Player_SpectateVehicle(int playerid, int targetvehicleid, int mode)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_VEHICLE_CHECKED(vehicle, targetvehicleid)
+	{
+		return false;
+	}
+	player->spectateVehicle(*vehicle, static_cast<PlayerSpectateMode>(mode));
+	return true;
+}
 
 // bool Player_StartRecordingData(int playerid, int recordtype, const char* recordname)
 // {
@@ -1656,15 +1647,7 @@ bool Player_CreateExplosion(int playerid, float x, float y, float z, int type, f
 // 	}
 // 	return true;
 // }
-// bool Player_IsInRangeOfPoint(int playerid, float range, float x, float y, float z)
-// {
-// 	GET_PLAYER_CHECKED(player, playerid)
-// 	{
-// 		return false;
-// 	}
-// 	return glm::distance(player->getPosition(), glm::vec3(x, y, z)) <= range;
-// }
-// float Player_GetDistanceFromPoint(int playerid, float x, float y, float z)
+// bool Player_StopRecordingData(int playerid)
 // {
 // 	GET_PLAYER_CHECKED(player, playerid)
 // 	{
