@@ -55,6 +55,10 @@ void MainComponent::onFree(IComponent* component)
 	{
 		vehicles_component_ = nullptr;
 	}
+	else if (component == objects_component_)
+	{
+		objects_component_ = nullptr;
+	}
 }
 
 void MainComponent::free()
