@@ -30,6 +30,21 @@
 	IObject* object_output = MainComponent::getInstance()->getObjectsComponent()->get(objectid); \
 	if (object_output == nullptr)
 
+#define GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data_output, textid)                    \
+	IPlayerTextDrawData* textdraw_data_output = queryExtension<IPlayerTextDrawData>(player); \
+	if (textdraw_data_output == nullptr)
+
+#define GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw_output, textid) \
+	IPlayerTextDraw* textdraw_output = nullptr;                                           \
+	for (auto it = textdraw_data->begin(), end = textdraw_data->end(); it != end; ++it)   \
+	{                                                                                     \
+		auto td = *it;                                                                    \
+		if (td->getID() == textid)                                                        \
+		{                                                                                 \
+			textdraw_output = td;                                                         \
+		}                                                                                 \
+	}
+
 bool Player_SetSpawnInfo(int playerid, int team, int skin, float x, float y, float z, float rotation, int weapon1, int weapon1_ammo, int weapon2, int weapon2_ammo, int weapon3, int weapon3_ammo)
 {
 	GET_PLAYER_CHECKED(player, playerid)
@@ -785,180 +800,435 @@ int Player_CreateTextDraw(int playerid, float x, float y, const char* text)
 	return player_td_data->create(glm::vec2(x, y), text)->getID();
 }
 
-bool PlayerTextDrawDestroy(int playerid, int textId)
+int Player_CreatePreviewModelTextDraw(int playerid, float x, float y, int model)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
-		return false;
+		return INVALID_TEXTDRAW;
 	}
 	auto player_td_data = queryExtension<IPlayerTextDrawData>(player);
 	if (!player_td_data)
 	{
-		return false;
+		return INVALID_TEXTDRAW;
 	}
-	player_td_data->release(textId);
-	return true;
+	return player_td_data->create(glm::vec2(x, y), model)->getID();
 }
 
-bool PlayerTextDrawLetterSize(int playerid, int textId, float x, float y)
+bool Player_DestroyTextDraw(int playerid, int textid)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
-	return true;
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	for (auto it = textdraw_data->begin(), end = textdraw_data->end(); it != end; ++it)
+	{
+		auto td = *it;
+		if (td->getID() == textid)
+		{
+			textdraw_data->release(std::distance(textdraw_data->begin(), it));
+			return true;
+		}
+	}
+	return false;
 }
 
-bool PlayerTextDrawTextSize(int playerid, int textId, float x, float y)
+bool Player_SetTextDrawPosition(int playerid, int textid, float x, float y)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
-	return true;
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setPosition(glm::vec2(x, y));
+	return false;
 }
 
-bool PlayerTextDrawAlignment(int playerid, int textId, int alignment)
+bool Player_SetTextDrawLetterSize(int playerid, int textid, float x, float y)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setLetterSize(glm::vec2(x, y));
 	return true;
 }
 
-bool PlayerTextDrawColor(int playerid, int textId, int color)
+bool Player_SetTextDrawTextSize(int playerid, int textid, float x, float y)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setTextSize(glm::vec2(x, y));
 	return true;
 }
 
-bool PlayerTextDrawUseBox(int playerid, int textId, bool use)
+bool Player_SetTextDrawAlignment(int playerid, int textid, int alignment)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setAlignment(static_cast<TextDrawAlignmentTypes>(alignment));
 	return true;
 }
 
-bool PlayerTextDrawBoxColor(int playerid, int textId, int color)
+bool Player_SetTextDrawColor(int playerid, int textid, uint32_t argb)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setColour(Colour::FromARGB(argb));
 	return true;
 }
 
-bool PlayerTextDrawSetShadow(int playerid, int textId, int size)
+bool Player_SetTextDrawUseBox(int playerid, int textid, bool use)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->useBox(use);
 	return true;
 }
 
-bool PlayerTextDrawSetOutline(int playerid, int textId, int size)
+bool Player_SetTextDrawBoxColor(int playerid, int textid, uint32_t argb)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setBoxColour(Colour::FromARGB(argb));
 	return true;
 }
 
-bool PlayerTextDrawBackgroundColor(int playerid, int textId, int color)
+bool Player_SetTextDrawShadow(int playerid, int textid, int shadow)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setShadow(size);
 	return true;
 }
 
-bool PlayerTextDrawFont(int playerid, int textId, int font)
+bool Player_SetTextDrawOutline(int playerid, int textid, int size)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setOutline(size);
 	return true;
 }
 
-bool PlayerTextDrawSetProportional(int playerid, int textId, bool set)
+bool Player_SetTextDrawBackgroundColor(int playerid, int textid, uint32_t argb)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setBackgroundColour(Colour::FromARGB(argb));
 	return true;
 }
 
-bool PlayerTextDrawSetSelectable(int playerid, int textId, bool set)
+bool Player_SetTextDrawStyle(int playerid, int textid, int style)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setStyle(static_cast<TextDrawStyle>(style));
 	return true;
 }
 
-bool PlayerTextDrawShow(int playerid, int textId)
+bool Player_SetTextDrawProportional(int playerid, int textid, bool proportional)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setProportional(proportional);
 	return true;
 }
 
-bool PlayerTextDrawHide(int playerid, int textId)
+bool Player_SetTextDrawSelectable(int playerid, int textid, bool selectable)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setSelectable(selectable);
 	return true;
 }
 
-bool PlayerTextDrawSetString(int playerid, int textId, const char* text)
+bool Player_ShowTextDraw(int playerid, int textid)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->show();
 	return true;
 }
 
-bool PlayerTextDrawSetPreviewModel(int playerid, int textId, int modelindex)
+bool Player_HideTextDraw(int playerid, int textid)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->hide();
 	return true;
 }
 
-bool PlayerTextDrawSetPreviewRot(int playerid, int textId, float fRotX, float fRotY, float fRotZ, float fZoom)
+bool Player_SetTextDrawText(int playerid, int textid, const char* text)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setText(text);
 	return true;
 }
 
-bool PlayerTextDrawSetPreviewVehCol(int playerid, int textId, int color1, int color2)
+bool Player_SetTextDrawPreviewModel(int playerid, int textid, int model)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setPreviewModel(model);
+	return true;
+}
+
+bool Player_SetTextDrawPreviewRotation(int playerid, int textid, float rot_x, float rot_y, float rot_z)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setPreviewRotation(glm::vec3(rot_x, rot_y, rot_z));
+	return true;
+}
+
+bool Player_SetTextDrawPreviewZoom(int playerid, int textid, float zoom)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setPreviewZoom(zoom);
+	return true;
+}
+
+bool Player_SetTextDrawPreviewVehiclePrimaryColor(int playerid, int textid, int color)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setPreviewVehicleColour(color, textdraw->getPreviewVehicleColour().second);
+	return true;
+}
+
+bool Player_SetTextDrawPreviewVehicleSecondaryColor(int playerid, int textid, int color)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->setPreviewVehicleColour(textdraw->getPreviewVehicleColour().first, color);
+	return true;
+}
+
+bool Player_RestreamTextDraw(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->restream();
 	return true;
 }
 
