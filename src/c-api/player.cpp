@@ -442,7 +442,7 @@ int Player_GetState(int playerid)
 	return player->getState();
 }
 
-bool Player_GetIp(int playerid, char* ip, int size)
+bool Player_GetIp(int playerid, char* ip, std::size_t size)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
@@ -485,14 +485,13 @@ bool Player_GetKeys(int playerid, int* keys, int* updown, int* leftright)
 	return true;
 }
 
-void Player_GetName(int playerid, char* name, int size)
+void Player_GetName(int playerid, char* name, std::size_t size)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return;
 	}
-
-	memcpy(name, player->getName().data(), size);
+	player->getName().copy(name, size);
 }
 
 bool Player_SetTime(int playerid, int hour, int minute)
@@ -836,6 +835,342 @@ bool Player_DestroyTextDraw(int playerid, int textid)
 	return false;
 }
 
+bool Player_GetTextDrawPosition(int playerid, int textid, float* x, float* y)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	auto vec2 = textdraw->getPosition();
+	*x = vec2.x;
+	*y = vec2.y;
+	return true;
+}
+
+bool Player_GetTextDrawLetterSize(int playerid, int textid, float* x, float* y)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	auto vec2 = textdraw->getLetterSize();
+	*x = vec2.x;
+	*y = vec2.y;
+	return true;
+}
+
+bool Player_GetTextDrawTextSize(int playerid, int textid, float* x, float* y)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	auto vec2 = textdraw->getTextSize();
+	*x = vec2.x;
+	*y = vec2.y;
+	return true;
+}
+
+int Player_GetTextDrawAlignment(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return TextDrawAlignmentTypes::TextDrawAlignment_Default;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return TextDrawAlignmentTypes::TextDrawAlignment_Default;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return TextDrawAlignmentTypes::TextDrawAlignment_Default;
+	}
+	return textdraw->getAlignment();
+}
+
+uint32_t Player_GetTextDrawColor(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getLetterColour().ARGB();
+}
+
+bool Player_TextDrawHasBox(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	return textdraw->hasBox();
+}
+
+uint32_t Player_GetTextDrawBoxColor(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	return textdraw->getBoxColour().ARGB();
+}
+
+int Player_GetTextDrawShadow(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getShadow();
+}
+
+int Player_GetTextDrawOutline(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getOutline();
+}
+
+uint32_t Player_GetTextDrawBackgroundColor(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getBackgroundColour().ARGB();
+}
+
+int Player_GetTextDrawStyle(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getStyle();
+}
+
+bool Player_IsTextDrawProportional(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	return textdraw->isProportional();
+}
+
+bool Player_IsTextDrawSelectable(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	return textdraw->isSelectable();
+}
+
+bool Player_GetTextDrawText(int playerid, int textid, char* text, std::size_t size)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	textdraw->getText().copy(text, size);
+	return true;
+}
+
+int Player_GetTextDrawPreviewModel(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return INVALID_OBJECT_MODEL_ID;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return INVALID_OBJECT_MODEL_ID;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return INVALID_OBJECT_MODEL_ID;
+	}
+	return textdraw->getPreviewModel();
+}
+bool Player_GetTextDrawPreviewRotation(int playerid, int textid, float* rot_x, float* rot_y, float* rot_z)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return false;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return false;
+	}
+	auto vec3 = player->getRotation().ToEuler();
+	*rot_x = vec3.x;
+	*rot_y = vec3.y;
+	*rot_z = vec3.z;
+	return true;
+}
+
+float Player_GetTextDrawPreviewZoom(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getPreviewZoom();
+}
+
+int Player_GetTextDrawPreviewVehiclePrimaryColor(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getPreviewVehicleColour().first;
+}
+
+int Player_GetTextDrawPreviewVehicleSecondaryColor(int playerid, int textid)
+{
+	GET_PLAYER_CHECKED(player, playerid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
+	{
+		return 0;
+	}
+	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
+	{
+		return 0;
+	}
+	return textdraw->getPreviewVehicleColour().second;
+}
+
 bool Player_SetTextDrawPosition(int playerid, int textid, float x, float y)
 {
 	GET_PLAYER_CHECKED(player, playerid)
@@ -851,7 +1186,7 @@ bool Player_SetTextDrawPosition(int playerid, int textid, float x, float y)
 		return false;
 	}
 	textdraw->setPosition(glm::vec2(x, y));
-	return false;
+	return true;
 }
 
 bool Player_SetTextDrawLetterSize(int playerid, int textid, float x, float y)
@@ -962,7 +1297,7 @@ bool Player_SetTextDrawBoxColor(int playerid, int textid, uint32_t argb)
 	return true;
 }
 
-bool Player_SetTextDrawShadow(int playerid, int textid, int shadow)
+bool Player_SetTextDrawShadow(int playerid, int textid, int size)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
@@ -1259,7 +1594,7 @@ bool Player_SetPVarString(int playerid, const char* varname, const char* value)
 	return true;
 }
 
-bool Player_GetPVarString(int playerid, const char* varname, char* value, int size)
+bool Player_GetPVarString(int playerid, const char* varname, char* value, std::size_t size)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
@@ -1304,7 +1639,7 @@ int Player_GetPVarsUpperIndex(int playerid)
 	return true;
 }
 
-bool Player_GetPVarNameAtIndex(int playerid, int index, char* varname, int size)
+bool Player_GetPVarNameAtIndex(int playerid, int index, char* varname, std::size_t size)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
