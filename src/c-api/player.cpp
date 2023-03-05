@@ -135,7 +135,7 @@ bool Player_GetFacingAngle(int playerid, float* angle)
 	return true;
 }
 
-bool Player_IsStreamedIn(int playerid, int forplayerid)
+bool Player_IsStreamedInFor(int playerid, int forplayerid)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
@@ -314,13 +314,13 @@ bool Player_SetDrunkLevel(int playerid, int level)
 	return true;
 }
 
-bool Player_SetColor(int playerid, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+bool Player_SetColor(int playerid, uint32_t argb)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
 		return false;
 	}
-	player->setColour(Colour(r, g, b, a));
+	player->setColour(Colour::FromARGB(argb));
 	return true;
 }
 
@@ -1900,7 +1900,7 @@ bool Player_ShowNameTagFor(int playerid, int showplayerid, bool show)
 	return true;
 }
 
-bool Player_SetMapIcon(int playerid, int iconid, float x, float y, float z, int markertype, uint32_t color, int style)
+bool Player_SetMapIcon(int playerid, int iconid, float x, float y, float z, int markertype, uint32_t argb, int style)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
@@ -2186,7 +2186,7 @@ int Player_GetVirtualWorld(int playerid)
 	return player->getVirtualWorld();
 }
 
-bool Player_EnableStuntBonusFor(int playerid, bool enable)
+bool Player_EnableStuntBonus(int playerid, bool enable)
 {
 	GET_PLAYER_CHECKED(player, playerid)
 	{
