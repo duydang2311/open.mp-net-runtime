@@ -22,7 +22,7 @@ class NetHost
 public:
 	static NetHost* getInstance();
 
-	bool invokeDllEntry();
+	void invokeInitializeCore();
 	bool invokePlayerRequestSpawnEvent(int playerid);
 	bool invokePlayerConnectEvent(int playerid);
 	void invokeScriptStartEvent();

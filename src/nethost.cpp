@@ -250,44 +250,18 @@ bool NetHost::invokePlayerConnectEvent(int playerid)
 	return playerRequestSpawn(playerid);
 }
 
-bool NetHost::invokeDllEntry()
+void NetHost::invokeInitializeCore()
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * MainPtr)();
-	MainPtr main = nullptr;
-	char fmt[1024];
-	auto dll_namespace = std::filesystem::path(dll_path_).filename().replace_extension("").c_str();
-	std::sprintf(fmt, "%s.Program, %s", dll_namespace, dll_namespace);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * InitializeCorePtr)(const char*);
+	auto entry_dll = std::filesystem::path(dll_path_).filename().replace_extension("").c_str();
+	InitializeCorePtr initializeCore = nullptr;
 	int rc = getManagedFunctionPointer(
-		fmt,
-		"Main",
-		(void**)&main,
-		CAPI_TYPE_NAME(MainDelegate));
-	if (rc != 0)
-	{
-		core_->logLn(LogLevel::Error, "DLL entry point not found, consider creating a static method %s.Program.Main as your program entry point", fmt);
-		return false;
-	}
-	main();
-	return true;
-}
-
-void NetHost::invokeTick()
-{
-	typedef void(CORECLR_DELEGATE_CALLTYPE * TickPtr)();
-	TickPtr tick = nullptr;
-	char fmt[1024];
-	auto dll_namespace = std::filesystem::path(dll_path_).filename().replace_extension("").c_str();
-	std::sprintf(fmt, "%s.Program, %s", dll_namespace, dll_namespace);
-	int rc = getManagedFunctionPointer(
-		fmt,
-		"Tick",
-		(void**)&tick);
-	if (rc != 0)
-	{
-		core_->logLn(LogLevel::Error, "%s not found", fmt);
-		return;
-	}
-	tick();
+		"Omp.Net.CoreInitializer, Omp.Net",
+		"InitializeCore",
+		(void**)&initializeCore);
+	assert(rc == 0);
+	std::cout << entry_dll << std::endl;
+	initializeCore(entry_dll);
 }
 
 inline int NetHost::getManagedFunctionPointer(const char_t* typeName, const char_t* methodName, void** ptr, const char_t* delegate_type_name)
