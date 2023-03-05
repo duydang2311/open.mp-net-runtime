@@ -25,8 +25,7 @@ public:
 	void invokeInitializeCore();
 	bool invokePlayerRequestSpawnEvent(int playerid);
 	bool invokePlayerConnectEvent(int playerid);
-	void invokeScriptStartEvent();
-	void invokeTick();
+	void invokeReadyEvent();
 
 private:
 	inline static const char* event_type_name_ = "Omp.Net.CApi.Events.NativePlayerEvent, Omp.Net.CApi";

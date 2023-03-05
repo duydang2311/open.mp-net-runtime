@@ -32,10 +32,8 @@ void MainComponent::onLoad(ICore* c)
 	core_->getPlayers().getPlayerConnectDispatcher().addEventHandler(this);
 	core_->getPlayers().getPlayerSpawnDispatcher().addEventHandler(this);
 
-	assert(host_->invokeDllEntry());
-
-	core_->logLn(LogLevel::Message, "open.mp-net loaded successfully, now starting gamemode");
-	host_->invokeScriptStartEvent();
+	host_->invokeInitializeCore();
+	core_->logLn(LogLevel::Message, "open.mp-net core intialized successfully, gamemode now starting");
 }
 
 void MainComponent::onInit(IComponentList* components)

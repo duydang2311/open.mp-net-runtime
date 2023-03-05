@@ -214,16 +214,16 @@ bool NetHost::getNETFunctionPointer()
 	return true;
 }
 
-void NetHost::invokeScriptStartEvent()
+void NetHost::invokeReadyEvent()
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * ScriptStartPtr)();
-	ScriptStartPtr scriptStart = nullptr;
+	typedef void(CORECLR_DELEGATE_CALLTYPE * ReadyPtr)();
+	ReadyPtr ready = nullptr;
 	int rc = getManagedFunctionPointer(
-		CAPI_TYPE_NAME(Events.NativeScriptEvent),
-		"ScriptStart",
-		(void**)&scriptStart);
+		CAPI_TYPE_NAME(Events.NativeCoreEvent),
+		"Ready",
+		(void**)&ready);
 	assert(rc == 0);
-	scriptStart();
+	ready();
 }
 
 bool NetHost::invokePlayerRequestSpawnEvent(int playerid)
