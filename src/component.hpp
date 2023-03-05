@@ -7,7 +7,9 @@
  */
 
 #pragma once
+#include "Server/Components/Objects/objects.hpp"
 #include "Server/Components/TextDraws/textdraws.hpp"
+#include "Server/Components/Vehicles/vehicles.hpp"
 #include "core.hpp"
 
 #include "player.hpp"
@@ -26,6 +28,8 @@ private:
 
 	ICore* core_ = nullptr;
 	ITextDrawsComponent* text_draw_component_ = nullptr;
+	IVehiclesComponent* vehicles_component_ = nullptr;
+	IObjectsComponent* objects_component_ = nullptr;
 	NetHost* host_ = nullptr;
 	TickDelegate tick_delegate_ = nullptr;
 
@@ -47,6 +51,8 @@ public:
 	static MainComponent* getInstance();
 	ICore* getCore();
 	ITextDrawsComponent* getTextDrawComponent();
+	IVehiclesComponent* getVehiclesComponent();
+	IObjectsComponent* getObjectsComponent();
 	void setTickDelegate(TickDelegate ptr);
 	void free() override;
 

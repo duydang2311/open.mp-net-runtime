@@ -6,7 +6,9 @@
  *  The original code is copyright (c) 2022, open.mp team and contributors.
  */
 
+#include "Server/Components/Objects/objects.hpp"
 #include "Server/Components/TextDraws/textdraws.hpp"
+#include "Server/Components/Vehicles/vehicles.hpp"
 #include "core.hpp"
 
 #include "src/component.hpp"
@@ -39,6 +41,8 @@ void MainComponent::onLoad(ICore* c)
 void MainComponent::onInit(IComponentList* components)
 {
 	text_draw_component_ = components->queryComponent<ITextDrawsComponent>();
+	vehicles_component_ = components->queryComponent<IVehiclesComponent>();
+	objects_component_ = components->queryComponent<IObjectsComponent>();
 }
 
 void MainComponent::onFree(IComponent* component)
@@ -46,6 +50,14 @@ void MainComponent::onFree(IComponent* component)
 	if (component == text_draw_component_)
 	{
 		text_draw_component_ = nullptr;
+	}
+	else if (component == vehicles_component_)
+	{
+		vehicles_component_ = nullptr;
+	}
+	else if (component == objects_component_)
+	{
+		objects_component_ = nullptr;
 	}
 }
 
@@ -62,6 +74,16 @@ void MainComponent::reset()
 ITextDrawsComponent* MainComponent::getTextDrawComponent()
 {
 	return text_draw_component_;
+}
+
+IVehiclesComponent* MainComponent::getVehiclesComponent()
+{
+	return vehicles_component_;
+}
+
+IObjectsComponent* MainComponent::getObjectsComponent()
+{
+	return objects_component_;
 }
 
 ICore* MainComponent::getCore()
