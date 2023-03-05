@@ -61,5 +61,6 @@ public:
 	void onInit(IComponentList* components) override;
 	void onTick(Microseconds elapsed, TimePoint now) override;
 	void onFree(IComponent* component) override;
+	void onReady() override;
 	bool onPlayerRequestSpawn(IPlayer& player) override;
 };

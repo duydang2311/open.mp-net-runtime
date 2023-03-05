@@ -43,6 +43,11 @@ void MainComponent::onInit(IComponentList* components)
 	objects_component_ = components->queryComponent<IObjectsComponent>();
 }
 
+void MainComponent::onReady()
+{
+	host_->invokeReadyEvent();
+}
+
 void MainComponent::onFree(IComponent* component)
 {
 	if (component == text_draw_component_)
