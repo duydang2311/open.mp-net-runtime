@@ -1906,7 +1906,7 @@ bool Player_SetMapIcon(int playerid, int iconid, float x, float y, float z, int 
 	{
 		return false;
 	}
-	player->setMapIcon(iconid, glm::vec3(x, y, z), markertype, Colour::FromRGBA(color), static_cast<MapIconStyle>(style));
+	player->setMapIcon(iconid, glm::vec3(x, y, z), markertype, Colour::FromRGBA(argb), static_cast<MapIconStyle>(style));
 	return true;
 }
 
