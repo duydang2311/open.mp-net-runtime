@@ -1,13 +1,5 @@
- open.mp Empty Component Template
+open.mp-net runtime
 ==================================
-
-This is a simple component start point template.  It does nothing except initialise a component that can be loaded by the server.
-
-## UID
-
-Since this is a template, i.e. a start point for new components, it needs a Unique ID adding.  Don't forget to get a new one from here:
-
-https://open.mp/uid
 
 ## Required Tools
 
@@ -17,23 +9,6 @@ https://open.mp/uid
 * Clang (on Linux)
 
 Visual Studio needs the `Desktop development with C++` workload with the `MSVC v142`, `Windows 10 SDK`, and `C++ Clang tools for Windows` components.
-
-## Sources
-
-```bash
-# With HTTPS:
-git clone --recursive https://github.com/openmultiplayer/empty-template
-# With SSH:
-git clone --recursive git@github.com:openmultiplayer/empty-template
-```
-
-Note the use of the `--recursive` argument, because this repository contains submodules.  A useful setting when cloning recursive repos is:
-
-```bash
-git config --global url."git@github.com:".insteadOf "https://github.com/"
-```
-
-Which allows you to push `https://` repos you have permissions on.
 
 ## Building on Windows
 
