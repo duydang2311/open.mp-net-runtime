@@ -13,7 +13,7 @@ struct UnmanagedEntityId
 	}
 	UnmanagedEntityId(IEntity* pointer)
 		: pointer(pointer)
-		, id(pointer->getID())
+		, id(pointer == nullptr ? -1 : pointer->getID())
 	{
 	}
 };
