@@ -14,6 +14,8 @@
 #include "native/coreclr_delegates.h"
 #include "native/hostfxr.h"
 
+#include "src/interop.hpp"
+
 #define STR_(X) #X
 #define CAPI_TYPE_NAME(X) "Omp.Net.CApi." STR_(X) ", Omp.Net.CApi"
 
@@ -23,9 +25,16 @@ public:
 	static NetHost* getInstance();
 
 	void invokeInitializeCore();
-	bool invokePlayerRequestSpawnEvent(int playerid);
-	bool invokePlayerConnectEvent(int playerid);
-	void invokeReadyEvent();
+
+	void invokeOnReady();
+
+	void invokeOnIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port);
+	void invokeOnPlayerConnect(IPlayer& player);
+	void invokeOnPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason);
+	void invokeOnPlayerClientInit(IPlayer& player);
+
+	bool invokeOnPlayerRequestSpawn(IPlayer& player);
+	void invokeOnPlayerSpawn(IPlayer& player);
 
 private:
 	inline static const char* event_type_name_ = "Omp.Net.CApi.Events.NativePlayerEvent, Omp.Net.CApi";

@@ -43,11 +43,6 @@ void MainComponent::onInit(IComponentList* components)
 	objects_component_ = components->queryComponent<IObjectsComponent>();
 }
 
-void MainComponent::onReady()
-{
-	host_->invokeReadyEvent();
-}
-
 void MainComponent::onFree(IComponent* component)
 {
 	if (component == text_draw_component_)
@@ -99,9 +94,14 @@ MainComponent* MainComponent::getInstance()
 	return instance_;
 }
 
-bool MainComponent::onPlayerRequestSpawn(IPlayer& player)
+void MainComponent::setTickDelegate(TickDelegate ptr)
 {
-	return host_->invokePlayerRequestSpawnEvent(player.getID());
+	bool first_call = tick_delegate_ == nullptr;
+	tick_delegate_ = ptr;
+	if (first_call)
+	{
+		core_->getEventDispatcher().addEventHandler(this);
+	}
 }
 
 void MainComponent::onTick(Microseconds elapsed, TimePoint now)
@@ -114,12 +114,37 @@ void MainComponent::onTick(Microseconds elapsed, TimePoint now)
 	tick_delegate_();
 }
 
-void MainComponent::setTickDelegate(TickDelegate ptr)
+void MainComponent::onReady()
 {
-	bool first_call = tick_delegate_ == nullptr;
-	tick_delegate_ = ptr;
-	if (first_call)
-	{
-		core_->getEventDispatcher().addEventHandler(this);
-	}
+	host_->invokeOnReady();
+}
+
+void MainComponent::onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port)
+{
+	host_->invokeOnIncomingConnection(player, ipAddress, port);
+}
+
+void MainComponent::onPlayerConnect(IPlayer& player)
+{
+	host_->invokeOnPlayerConnect(player);
+}
+
+void MainComponent::onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason)
+{
+	host_->invokeOnPlayerDisconnect(player, reason);
+}
+
+void MainComponent::onPlayerClientInit(IPlayer& player)
+{
+	host_->invokeOnPlayerClientInit(player);
+}
+
+bool MainComponent::onPlayerRequestSpawn(IPlayer& player)
+{
+	return host_->invokeOnPlayerRequestSpawn(player);
+}
+
+void MainComponent::onPlayerSpawn(IPlayer& player)
+{
+	host_->invokeOnPlayerSpawn(player);
 }

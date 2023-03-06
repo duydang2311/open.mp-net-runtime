@@ -62,5 +62,12 @@ public:
 	void onTick(Microseconds elapsed, TimePoint now) override;
 	void onFree(IComponent* component) override;
 	void onReady() override;
+
+	void onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port) override;
+	void onPlayerConnect(IPlayer& player) override;
+	void onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason) override;
+	void onPlayerClientInit(IPlayer& player) override;
+
 	bool onPlayerRequestSpawn(IPlayer& player) override;
+	void onPlayerSpawn(IPlayer& player) override;
 };

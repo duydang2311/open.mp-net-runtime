@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string_view>
 #include "core.hpp"
+#include "src/interop.hpp"
 #include "src/nethost.hpp"
 #include "src/component.hpp"
 
@@ -214,56 +215,6 @@ bool NetHost::getNETFunctionPointer()
 	return true;
 }
 
-void NetHost::invokeReadyEvent()
-{
-	typedef void(CORECLR_DELEGATE_CALLTYPE * ReadyPtr)();
-	ReadyPtr ready = nullptr;
-	int rc = getManagedFunctionPointer(
-		CAPI_TYPE_NAME(Events.NativeCoreEvent),
-		"Ready",
-		(void**)&ready);
-	assert(rc == 0);
-	ready();
-}
-
-bool NetHost::invokePlayerRequestSpawnEvent(int playerid)
-{
-	typedef int(CORECLR_DELEGATE_CALLTYPE * PlayerRequestSpawnPtr)(int);
-	PlayerRequestSpawnPtr playerRequestSpawn = nullptr;
-	int rc = getManagedFunctionPointer(
-		CAPI_TYPE_NAME(Events.NativePlayerEvent),
-		"PlayerRequestSpawn",
-		(void**)&playerRequestSpawn);
-	assert(rc == 0);
-	return playerRequestSpawn(playerid);
-}
-
-bool NetHost::invokePlayerConnectEvent(int playerid)
-{
-	typedef int(CORECLR_DELEGATE_CALLTYPE * PlayerRequestSpawnPtr)(int);
-	PlayerRequestSpawnPtr playerRequestSpawn = nullptr;
-	int rc = getManagedFunctionPointer(
-		CAPI_TYPE_NAME(Events.NativePlayerEvent),
-		"PlayerConnectEvent",
-		(void**)&playerRequestSpawn);
-	assert(rc == 0);
-	return playerRequestSpawn(playerid);
-}
-
-void NetHost::invokeInitializeCore()
-{
-	typedef void(CORECLR_DELEGATE_CALLTYPE * InitializeCorePtr)(const char*);
-	auto entry_dll = std::filesystem::path(dll_path_).filename().replace_extension("").c_str();
-	InitializeCorePtr initializeCore = nullptr;
-	int rc = getManagedFunctionPointer(
-		"Omp.Net.CoreInitializer, Omp.Net",
-		"InitializeCore",
-		(void**)&initializeCore);
-	assert(rc == 0);
-	std::cout << entry_dll << std::endl;
-	initializeCore(entry_dll);
-}
-
 inline int NetHost::getManagedFunctionPointer(const char_t* typeName, const char_t* methodName, void** ptr, const char_t* delegate_type_name)
 {
 	return load_assembly_and_get_function_pointer_(
@@ -273,4 +224,101 @@ inline int NetHost::getManagedFunctionPointer(const char_t* typeName, const char
 		delegate_type_name,
 		nullptr,
 		ptr);
+}
+
+void NetHost::invokeInitializeCore()
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnIncomingConnectionPtr)(const char*);
+	auto entry_dll = std::filesystem::path(dll_path_).filename().replace_extension("").c_str();
+	OnIncomingConnectionPtr initializeCore = nullptr;
+	int rc = getManagedFunctionPointer(
+		"Omp.Net.CoreInitializer, Omp.Net",
+		"InitializeCore",
+		(void**)&initializeCore);
+	assert(rc == 0);
+	initializeCore(entry_dll);
+}
+
+void NetHost::invokeOnReady()
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnReadyPtr)();
+	OnReadyPtr onReady = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativeCoreEvent),
+		"OnReady",
+		(void**)&onReady);
+	assert(rc == 0);
+	onReady();
+}
+
+void NetHost::invokeOnIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnIncomingConnectionPtr)(UnmanagedEntityId, const char*, unsigned short);
+	OnIncomingConnectionPtr onIncomingConnection = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativeCoreEvent),
+		"OnIncomingConnection",
+		(void**)&onIncomingConnection);
+	assert(rc == 0);
+	onIncomingConnection(UnmanagedEntityId(player), ipAddress.data(), port);
+}
+
+void NetHost::invokeOnPlayerConnect(IPlayer& player)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerConnectPtr)(UnmanagedEntityId);
+	OnPlayerConnectPtr onPlayerConnect = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePlayerEvent),
+		"OnPlayerConnect",
+		(void**)&onPlayerConnect);
+	assert(rc == 0);
+	onPlayerConnect(UnmanagedEntityId(player));
+}
+
+void NetHost::invokeOnPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason)
+{
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerDisconnectPtr)(UnmanagedEntityId, int);
+	OnPlayerDisconnectPtr onPlayerDisconnect = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePlayerEvent),
+		"OnPlayerDisconnect",
+		(void**)&onPlayerDisconnect);
+	assert(rc == 0);
+	onPlayerDisconnect(UnmanagedEntityId(player), static_cast<int>(reason));
+}
+
+void NetHost::invokeOnPlayerClientInit(IPlayer& player)
+{
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerClientInitPtr)(UnmanagedEntityId);
+	OnPlayerClientInitPtr onPlayerClientInit = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePlayerEvent),
+		"OnPlayerClientInit",
+		(void**)&onPlayerClientInit);
+	assert(rc == 0);
+	onPlayerClientInit(UnmanagedEntityId(player));
+}
+
+bool NetHost::invokeOnPlayerRequestSpawn(IPlayer& player)
+{
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerRequestSpawnPtr)(UnmanagedEntityId);
+	OnPlayerRequestSpawnPtr onPlayerRequestSpawn = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePlayerEvent),
+		"OnPlayerRequestSpawn",
+		(void**)&onPlayerRequestSpawn);
+	assert(rc == 0);
+	return onPlayerRequestSpawn(UnmanagedEntityId(player));
+}
+
+void NetHost::invokeOnPlayerSpawn(IPlayer& player)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerSpawnPtr)(UnmanagedEntityId);
+	OnPlayerSpawnPtr onPlayerSpawn = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePlayerEvent),
+		"OnPlayerSpawn",
+		(void**)&onPlayerSpawn);
+	assert(rc == 0);
+	onPlayerSpawn(UnmanagedEntityId(player));
 }
