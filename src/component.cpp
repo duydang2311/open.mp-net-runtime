@@ -148,3 +148,108 @@ void MainComponent::onPlayerSpawn(IPlayer& player)
 {
 	host_->invokeOnPlayerSpawn(player);
 }
+
+void MainComponent::onPlayerStreamIn(IPlayer& player, IPlayer& forPlayer)
+{
+	host_->invokeOnPlayerStreamIn(player, forPlayer);
+}
+
+void MainComponent::onPlayerStreamOut(IPlayer& player, IPlayer& forPlayer)
+{
+	host_->invokeOnPlayerStreamOut(player, forPlayer);
+}
+
+bool MainComponent::onPlayerText(IPlayer& player, StringView message)
+{
+	return host_->invokeOnPlayerText(player, message);
+}
+
+bool MainComponent::onPlayerCommandText(IPlayer& player, StringView message)
+{
+	return host_->invokeOnPlayerCommandText(player, message);
+}
+
+bool MainComponent::onPlayerShotMissed(IPlayer& player, const PlayerBulletData& bulletData)
+{
+	return host_->invokeOnPlayerShotMissed(player, bulletData);
+}
+
+bool MainComponent::onPlayerShotPlayer(IPlayer& player, IPlayer& target, const PlayerBulletData& bulletData)
+{
+	return host_->invokeOnPlayerShotPlayer(player, target, bulletData);
+}
+
+bool MainComponent::onPlayerShotVehicle(IPlayer& player, IVehicle& target, const PlayerBulletData& bulletData)
+{
+	return host_->invokeOnPlayerShotVehicle(player, target, bulletData);
+}
+
+bool MainComponent::onPlayerShotObject(IPlayer& player, IObject& target, const PlayerBulletData& bulletData)
+{
+	return host_->invokeOnPlayerShotObject(player, target, bulletData);
+}
+
+bool MainComponent::onPlayerShotPlayerObject(IPlayer& player, IPlayerObject& target, const PlayerBulletData& bulletData)
+{
+	return host_->invokeOnPlayerShotPlayerObject(player, target, bulletData);
+}
+
+void MainComponent::onPlayerScoreChange(IPlayer& player, int score)
+{
+	host_->invokeOnPlayerScoreChange(player, score);
+}
+
+void MainComponent::onPlayerNameChange(IPlayer& player, StringView oldName)
+{
+	host_->invokeOnPlayerNameChange(player, oldName);
+}
+
+void MainComponent::onPlayerInteriorChange(IPlayer& player, unsigned newInterior, unsigned oldInterior)
+{
+	host_->invokeOnPlayerInteriorChange(player, newInterior, oldInterior);
+}
+
+void MainComponent::onPlayerStateChange(IPlayer& player, PlayerState newState, PlayerState oldState)
+{
+	host_->invokeOnPlayerStateChange(player, newState, oldState);
+}
+
+void MainComponent::onPlayerKeyStateChange(IPlayer& player, uint32_t newKeys, uint32_t oldKeys)
+{
+	host_->invokeOnPlayerKeyStateChange(player, newKeys, oldKeys);
+}
+
+void MainComponent::onPlayerDeath(IPlayer& player, IPlayer* killer, int reason)
+{
+	host_->invokeOnPlayerDeath(player, killer, reason);
+}
+
+void MainComponent::onPlayerTakeDamage(IPlayer& player, IPlayer* from, float amount, unsigned weapon, BodyPart part)
+{
+	host_->invokeOnPlayerTakeDamage(player, from, amount, weapon, part);
+}
+
+void MainComponent::onPlayerGiveDamage(IPlayer& player, IPlayer& to, float amount, unsigned weapon, BodyPart part)
+{
+	host_->invokeOnPlayerGiveDamage(player, to, amount, weapon, part);
+}
+
+void MainComponent::onPlayerClickMap(IPlayer& player, Vector3 pos)
+{
+	host_->invokeOnPlayerClickMap(player, pos);
+}
+
+void MainComponent::onPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source)
+{
+	host_->invokeOnPlayerClickPlayer(player, clicked, source);
+}
+
+void MainComponent::onClientCheckResponse(IPlayer& player, int actionType, int address, int results)
+{
+	host_->invokeOnClientCheckResponse(player, actionType, address, results);
+}
+
+bool MainComponent::onPlayerUpdate(IPlayer& player, TimePoint now)
+{
+	return host_->invokeOnPlayerUpdate(player, now);
+}

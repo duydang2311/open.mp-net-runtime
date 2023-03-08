@@ -19,9 +19,17 @@
 
 using TickDelegate = void* (*)();
 class MainComponent final : public IComponent,
+							public CoreEventHandler,
 							public PlayerSpawnEventHandler,
 							public PlayerConnectEventHandler,
-							public CoreEventHandler
+							public PlayerStreamEventHandler,
+							public PlayerTextEventHandler,
+							public PlayerShotEventHandler,
+							public PlayerChangeEventHandler,
+							public PlayerDamageEventHandler,
+							public PlayerClickEventHandler,
+							public PlayerCheckEventHandler,
+							public PlayerUpdateEventHandler
 {
 private:
 	inline static MainComponent* instance_ = nullptr;
@@ -63,11 +71,50 @@ public:
 	void onFree(IComponent* component) override;
 	void onReady() override;
 
+	// PlayerSpawnEventHandler
 	void onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port) override;
 	void onPlayerConnect(IPlayer& player) override;
 	void onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason) override;
 	void onPlayerClientInit(IPlayer& player) override;
 
+	// PlayerConnectEventHandler
 	bool onPlayerRequestSpawn(IPlayer& player) override;
 	void onPlayerSpawn(IPlayer& player) override;
+
+	// PlayerStreamEventHandler
+	void onPlayerStreamIn(IPlayer& player, IPlayer& forPlayer) override;
+	void onPlayerStreamOut(IPlayer& player, IPlayer& forPlayer) override;
+
+	// PlayerTextEventHandler
+	bool onPlayerText(IPlayer& player, StringView message) override;
+	bool onPlayerCommandText(IPlayer& player, StringView message) override;
+
+	// PlayerShotEventHandler
+	bool onPlayerShotMissed(IPlayer& player, const PlayerBulletData& bulletData) override;
+	bool onPlayerShotPlayer(IPlayer& player, IPlayer& target, const PlayerBulletData& bulletData) override;
+	bool onPlayerShotVehicle(IPlayer& player, IVehicle& target, const PlayerBulletData& bulletData) override;
+	bool onPlayerShotObject(IPlayer& player, IObject& target, const PlayerBulletData& bulletData) override;
+	bool onPlayerShotPlayerObject(IPlayer& player, IPlayerObject& target, const PlayerBulletData& bulletData) override;
+
+	// PlayerChangeEventHandler
+	void onPlayerScoreChange(IPlayer& player, int score) override;
+	void onPlayerNameChange(IPlayer& player, StringView oldName) override;
+	void onPlayerInteriorChange(IPlayer& player, unsigned newInterior, unsigned oldInterior) override;
+	void onPlayerStateChange(IPlayer& player, PlayerState newState, PlayerState oldState) override;
+	void onPlayerKeyStateChange(IPlayer& player, uint32_t newKeys, uint32_t oldKeys) override;
+
+	// PlayerDamageEventHandler
+	void onPlayerDeath(IPlayer& player, IPlayer* killer, int reason) override;
+	void onPlayerTakeDamage(IPlayer& player, IPlayer* from, float amount, unsigned weapon, BodyPart part) override;
+	void onPlayerGiveDamage(IPlayer& player, IPlayer& to, float amount, unsigned weapon, BodyPart part) override;
+
+	// PlayerClickEventHandler
+	void onPlayerClickMap(IPlayer& player, Vector3 pos) override;
+	void onPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source) override;
+
+	// PlayerCheckEventHandler
+	void onClientCheckResponse(IPlayer& player, int actionType, int address, int results) override;
+
+	// PlayerUpdateEventHandler
+	bool onPlayerUpdate(IPlayer& player, TimePoint now) override;
 };

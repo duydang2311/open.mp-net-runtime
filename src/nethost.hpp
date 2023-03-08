@@ -36,6 +36,28 @@ public:
 	bool invokeOnPlayerRequestSpawn(IPlayer& player);
 	void invokeOnPlayerSpawn(IPlayer& player);
 
+	void invokeOnPlayerStreamIn(IPlayer& player, IPlayer& forPlayer);
+	void invokeOnPlayerStreamOut(IPlayer& player, IPlayer& forPlayer);
+	bool invokeOnPlayerText(IPlayer& player, StringView message);
+	bool invokeOnPlayerCommandText(IPlayer& player, StringView message);
+	bool invokeOnPlayerShotMissed(IPlayer& player, const PlayerBulletData& bulletData);
+	bool invokeOnPlayerShotPlayer(IPlayer& player, IPlayer& target, const PlayerBulletData& bulletData);
+	bool invokeOnPlayerShotVehicle(IPlayer& player, IVehicle& target, const PlayerBulletData& bulletData);
+	bool invokeOnPlayerShotObject(IPlayer& player, IObject& target, const PlayerBulletData& bulletData);
+	bool invokeOnPlayerShotPlayerObject(IPlayer& player, IPlayerObject& target, const PlayerBulletData& bulletData);
+	void invokeOnPlayerScoreChange(IPlayer& player, int score);
+	void invokeOnPlayerNameChange(IPlayer& player, StringView oldName);
+	void invokeOnPlayerInteriorChange(IPlayer& player, unsigned newInterior, unsigned oldInterior);
+	void invokeOnPlayerStateChange(IPlayer& player, PlayerState newState, PlayerState oldState);
+	void invokeOnPlayerKeyStateChange(IPlayer& player, uint32_t newKeys, uint32_t oldKeys);
+	void invokeOnPlayerDeath(IPlayer& player, IPlayer* killer, int reason);
+	void invokeOnPlayerTakeDamage(IPlayer& player, IPlayer* from, float amount, unsigned weapon, BodyPart part);
+	void invokeOnPlayerGiveDamage(IPlayer& player, IPlayer& to, float amount, unsigned weapon, BodyPart part);
+	void invokeOnPlayerClickMap(IPlayer& player, Vector3 pos);
+	void invokeOnPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source);
+	void invokeOnClientCheckResponse(IPlayer& player, int actionType, int address, int results);
+	bool invokeOnPlayerUpdate(IPlayer& player, TimePoint now);
+
 private:
 	inline static const char* event_type_name_ = "Omp.Net.CApi.Events.NativePlayerEvent, Omp.Net.CApi";
 	inline static NetHost* instance_ = nullptr;
