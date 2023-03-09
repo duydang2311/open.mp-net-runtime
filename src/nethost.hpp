@@ -10,6 +10,19 @@
 #include <string_view>
 
 #include "core.hpp"
+#include "Server/Components/Actors/actors.hpp"
+#include "Server/Components/Checkpoints/checkpoints.hpp"
+#include "Server/Components/Classes/classes.hpp"
+#include "Server/Components/Console/console.hpp"
+#include "Server/Components/CustomModels/custommodels.hpp"
+#include "Server/Components/Dialogs/dialogs.hpp"
+#include "Server/Components/GangZones/gangzones.hpp"
+#include "Server/Components/Menus/menus.hpp"
+#include "Server/Components/Objects/objects.hpp"
+#include "Server/Components/Pickups/pickups.hpp"
+#include "Server/Components/TextDraws/textdraws.hpp"
+#include "Server/Components/TextLabels/textlabels.hpp"
+#include "Server/Components/Vehicles/vehicles.hpp"
 #include "native/nethost.h"
 #include "native/coreclr_delegates.h"
 #include "native/hostfxr.h"
@@ -57,6 +70,93 @@ public:
 	void invokeOnPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source);
 	void invokeOnClientCheckResponse(IPlayer& player, int actionType, int address, int results);
 	bool invokeOnPlayerUpdate(IPlayer& player, TimePoint now);
+
+	// ActorEventHandler
+	void invokeOnPlayerGiveDamageActor(IPlayer& player, IActor& actor, float amount, unsigned weapon, BodyPart part);
+	void invokeOnActorStreamOut(IActor& actor, IPlayer& forPlayer);
+	void invokeOnActorStreamIn(IActor& actor, IPlayer& forPlayer);
+
+	// PlayerCheckpointEventHandler
+	void invokeOnPlayerEnterCheckpoint(IPlayer& player);
+	void invokeOnPlayerLeaveCheckpoint(IPlayer& player);
+	void invokeOnPlayerEnterRaceCheckpoint(IPlayer& player);
+	void invokeOnPlayerLeaveRaceCheckpoint(IPlayer& player);
+
+	// ClassEventHandler
+	bool invokeOnPlayerRequestClass(IPlayer& player, unsigned int classId);
+
+	// ConsoleEventHandler
+	bool invokeOnConsoleText(StringView command, StringView parameters, const ConsoleCommandSenderData& sender);
+	void invokeOnRconLoginAttempt(IPlayer& player, StringView password, bool success);
+	void invokeOnConsoleCommandListRequest(FlatHashSet<StringView>& commands);
+
+	// PlayerModelsEventHandler
+	void invokeOnPlayerFinishedDownloading(IPlayer& player);
+	bool invokeOnPlayerRequestDownload(IPlayer& player, ModelDownloadType type, uint32_t checksum);
+
+	// PlayerDialogEventHandler
+	void invokeOnDialogResponse(IPlayer& player, int dialogId, DialogResponse response, int listItem, StringView inputText);
+
+	// GangZoneEventHandler
+	void invokeOnPlayerEnterGangZone(IPlayer& player, IGangZone& zone);
+	void invokeOnPlayerLeaveGangZone(IPlayer& player, IGangZone& zone);
+	void invokeOnPlayerClickGangZone(IPlayer& player, IGangZone& zone);
+
+	// MenuEventHandler
+	void invokeOnPlayerSelectedMenuRow(IPlayer& player, MenuRow row);
+	void invokeOnPlayerExitedMenu(IPlayer& player);
+
+	// ObjectEventHandler
+	void invokeOnObjectMoved(IObject& object);
+	void invokeOnPlayerObjectMoved(IPlayer& player, IPlayerObject& object);
+	void invokeOnObjectSelected(IPlayer& player, IObject& object, int model, Vector3 position);
+	void invokeOnPlayerObjectSelected(IPlayer& player, IPlayerObject& object, int model, Vector3 position);
+	void invokeOnObjectEdited(IPlayer& player, IObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation);
+	void invokeOnPlayerObjectEdited(IPlayer& player, IPlayerObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation);
+	void invokeOnPlayerAttachedObjectEdited(IPlayer& player, int index, bool saved, const ObjectAttachmentSlotData& data);
+
+	// PickupEventHandler
+	void invokeOnPlayerPickUpPickup(IPlayer& player, IPickup& pickup);
+
+	// TextDrawsEventHandler
+	void invokeOnPlayerClickTextDraw(IPlayer& player, ITextDraw& td);
+	void invokeOnPlayerClickPlayerTextDraw(IPlayer& player, IPlayerTextDraw& td);
+	bool invokeOnPlayerCancelTextDrawSelection(IPlayer& player);
+	bool invokeOnPlayerCancelPlayerTextDrawSelection(IPlayer& player);
+
+	// VehicleEventHandler
+	void invokeOnVehicleStreamIn(IVehicle& vehicle, IPlayer& player);
+	void invokeOnVehicleStreamOut(IVehicle& vehicle, IPlayer& player);
+	void invokeOnVehicleDeath(IVehicle& vehicle, IPlayer& player);
+	void invokeOnPlayerEnterVehicle(IPlayer& player, IVehicle& vehicle, bool passenger);
+	void invokeOnPlayerExitVehicle(IPlayer& player, IVehicle& vehicle);
+	void invokeOnVehicleDamageStatusUpdate(IVehicle& vehicle, IPlayer& player);
+	bool invokeOnVehiclePaintJob(IPlayer& player, IVehicle& vehicle, int paintJob);
+	bool invokeOnVehicleMod(IPlayer& player, IVehicle& vehicle, int component);
+	bool invokeOnVehicleRespray(IPlayer& player, IVehicle& vehicle, int colour1, int colour2);
+	void invokeOnEnterExitModShop(IPlayer& player, bool enterexit, int interiorID);
+	void invokeOnVehicleSpawn(IVehicle& vehicle);
+	bool invokeOnUnoccupiedVehicleUpdate(IVehicle& vehicle, IPlayer& player, UnoccupiedVehicleUpdate const updateData);
+	bool invokeOnTrailerUpdate(IPlayer& player, IVehicle& trailer);
+	bool invokeOnVehicleSirenStateChange(IPlayer& player, IVehicle& vehicle, uint8_t sirenState);
+
+	// PoolEventHandler
+	void invokeOnPoolEntryCreated(IActor& entry);
+	void invokeOnPoolEntryDestroyed(IActor& entry);
+	void invokeOnPoolEntryCreated(IPickup& entry);
+	void invokeOnPoolEntryDestroyed(IPickup& entry);
+	void invokeOnPoolEntryCreated(IPlayer& entry);
+	void invokeOnPoolEntryDestroyed(IPlayer& entry);
+	void invokeOnPoolEntryCreated(IVehicle& entry);
+	void invokeOnPoolEntryDestroyed(IVehicle& entry);
+	void invokeOnPoolEntryCreated(IObject& entry);
+	void invokeOnPoolEntryDestroyed(IObject& entry);
+	void invokeOnPoolEntryCreated(IPlayerObject& entry);
+	void invokeOnPoolEntryDestroyed(IPlayerObject& entry);
+	void invokeOnPoolEntryCreated(ITextLabel& entry);
+	void invokeOnPoolEntryDestroyed(ITextLabel& entry);
+	void invokeOnPoolEntryCreated(IPlayerTextLabel& entry);
+	void invokeOnPoolEntryDestroyed(IPlayerTextLabel& entry);
 
 private:
 	inline static const char* event_type_name_ = "Omp.Net.CApi.Events.NativePlayerEvent, Omp.Net.CApi";

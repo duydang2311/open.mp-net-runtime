@@ -7,8 +7,18 @@
  */
 
 #pragma once
+#include "Server/Components/Actors/actors.hpp"
+#include "Server/Components/Checkpoints/checkpoints.hpp"
+#include "Server/Components/Classes/classes.hpp"
+#include "Server/Components/Console/console.hpp"
+#include "Server/Components/CustomModels/custommodels.hpp"
+#include "Server/Components/Dialogs/dialogs.hpp"
+#include "Server/Components/GangZones/gangzones.hpp"
+#include "Server/Components/Menus/menus.hpp"
 #include "Server/Components/Objects/objects.hpp"
+#include "Server/Components/Pickups/pickups.hpp"
 #include "Server/Components/TextDraws/textdraws.hpp"
+#include "Server/Components/TextLabels/textlabels.hpp"
 #include "Server/Components/Vehicles/vehicles.hpp"
 #include "core.hpp"
 
@@ -29,7 +39,27 @@ class MainComponent final : public IComponent,
 							public PlayerDamageEventHandler,
 							public PlayerClickEventHandler,
 							public PlayerCheckEventHandler,
-							public PlayerUpdateEventHandler
+							public PlayerUpdateEventHandler,
+							public ActorEventHandler,
+							public PlayerCheckpointEventHandler,
+							public ClassEventHandler,
+							public ConsoleEventHandler,
+							public PlayerModelsEventHandler,
+							public PlayerDialogEventHandler,
+							public GangZoneEventHandler,
+							public MenuEventHandler,
+							public ObjectEventHandler,
+							public PickupEventHandler,
+							public TextDrawEventHandler,
+							public VehicleEventHandler,
+							public PoolEventHandler<IActor>,
+							public PoolEventHandler<IPlayer>,
+							public PoolEventHandler<IVehicle>,
+							public PoolEventHandler<IObject>,
+							public PoolEventHandler<IPlayerObject>,
+							public PoolEventHandler<ITextLabel>,
+							public PoolEventHandler<IPlayerTextLabel>,
+							public PoolEventHandler<IPickup>
 {
 private:
 	inline static MainComponent* instance_ = nullptr;
@@ -117,4 +147,91 @@ public:
 
 	// PlayerUpdateEventHandler
 	bool onPlayerUpdate(IPlayer& player, TimePoint now) override;
+
+	// ActorEventHandler
+	void onPlayerGiveDamageActor(IPlayer& player, IActor& actor, float amount, unsigned weapon, BodyPart part) override;
+	void onActorStreamOut(IActor& actor, IPlayer& forPlayer) override;
+	void onActorStreamIn(IActor& actor, IPlayer& forPlayer) override;
+
+	// PlayerCheckpointEventHandler
+	void onPlayerEnterCheckpoint(IPlayer& player) override;
+	void onPlayerLeaveCheckpoint(IPlayer& player) override;
+	void onPlayerEnterRaceCheckpoint(IPlayer& player) override;
+	void onPlayerLeaveRaceCheckpoint(IPlayer& player) override;
+
+	// ClassEventHandler
+	bool onPlayerRequestClass(IPlayer& player, unsigned int classId) override;
+
+	// ConsoleEventHandler
+	bool onConsoleText(StringView command, StringView parameters, const ConsoleCommandSenderData& sender) override;
+	void onRconLoginAttempt(IPlayer& player, StringView password, bool success) override;
+	void onConsoleCommandListRequest(FlatHashSet<StringView>& commands) override;
+
+	// PlayerModelsEventHandler
+	void onPlayerFinishedDownloading(IPlayer& player) override;
+	bool onPlayerRequestDownload(IPlayer& player, ModelDownloadType type, uint32_t checksum) override;
+
+	// PlayerDialogEventHandler
+	void onDialogResponse(IPlayer& player, int dialogId, DialogResponse response, int listItem, StringView inputText) override;
+
+	// GangZoneEventHandler
+	void onPlayerEnterGangZone(IPlayer& player, IGangZone& zone) override;
+	void onPlayerLeaveGangZone(IPlayer& player, IGangZone& zone) override;
+	void onPlayerClickGangZone(IPlayer& player, IGangZone& zone) override;
+
+	// MenuEventHandler
+	void onPlayerSelectedMenuRow(IPlayer& player, MenuRow row) override;
+	void onPlayerExitedMenu(IPlayer& player) override;
+
+	// ObjectEventHandler
+	void onMoved(IObject& object) override;
+	void onPlayerObjectMoved(IPlayer& player, IPlayerObject& object) override;
+	void onObjectSelected(IPlayer& player, IObject& object, int model, Vector3 position) override;
+	void onPlayerObjectSelected(IPlayer& player, IPlayerObject& object, int model, Vector3 position) override;
+	void onObjectEdited(IPlayer& player, IObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation) override;
+	void onPlayerObjectEdited(IPlayer& player, IPlayerObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation) override;
+	void onPlayerAttachedObjectEdited(IPlayer& player, int index, bool saved, const ObjectAttachmentSlotData& data) override;
+
+	// PickupEventHandler
+	void onPlayerPickUpPickup(IPlayer& player, IPickup& pickup) override;
+
+	// TextDrawsEventHandler
+	void onPlayerClickTextDraw(IPlayer& player, ITextDraw& td) override;
+	void onPlayerClickPlayerTextDraw(IPlayer& player, IPlayerTextDraw& td) override;
+	bool onPlayerCancelTextDrawSelection(IPlayer& player) override;
+	bool onPlayerCancelPlayerTextDrawSelection(IPlayer& player) override;
+
+	// VehicleEventHandler
+	void onVehicleStreamIn(IVehicle& vehicle, IPlayer& player) override;
+	void onVehicleStreamOut(IVehicle& vehicle, IPlayer& player) override;
+	void onVehicleDeath(IVehicle& vehicle, IPlayer& player) override;
+	void onPlayerEnterVehicle(IPlayer& player, IVehicle& vehicle, bool passenger) override;
+	void onPlayerExitVehicle(IPlayer& player, IVehicle& vehicle) override;
+	void onVehicleDamageStatusUpdate(IVehicle& vehicle, IPlayer& player) override;
+	bool onVehiclePaintJob(IPlayer& player, IVehicle& vehicle, int paintJob) override;
+	bool onVehicleMod(IPlayer& player, IVehicle& vehicle, int component) override;
+	bool onVehicleRespray(IPlayer& player, IVehicle& vehicle, int colour1, int colour2) override;
+	void onEnterExitModShop(IPlayer& player, bool enterexit, int interiorID) override;
+	void onVehicleSpawn(IVehicle& vehicle) override;
+	bool onUnoccupiedVehicleUpdate(IVehicle& vehicle, IPlayer& player, UnoccupiedVehicleUpdate const updateData) override;
+	bool onTrailerUpdate(IPlayer& player, IVehicle& trailer) override;
+	bool onVehicleSirenStateChange(IPlayer& player, IVehicle& vehicle, uint8_t sirenState) override;
+
+	// PoolEventHandler
+	void onPoolEntryCreated(IActor& entry) override;
+	void onPoolEntryDestroyed(IActor& entry) override;
+	void onPoolEntryCreated(IPickup& entry) override;
+	void onPoolEntryDestroyed(IPickup& entry) override;
+	void onPoolEntryCreated(IPlayer& entry) override;
+	void onPoolEntryDestroyed(IPlayer& entry) override;
+	void onPoolEntryCreated(IVehicle& entry) override;
+	void onPoolEntryDestroyed(IVehicle& entry) override;
+	void onPoolEntryCreated(IObject& entry) override;
+	void onPoolEntryDestroyed(IObject& entry) override;
+	void onPoolEntryCreated(IPlayerObject& entry) override;
+	void onPoolEntryDestroyed(IPlayerObject& entry) override;
+	void onPoolEntryCreated(ITextLabel& entry) override;
+	void onPoolEntryDestroyed(ITextLabel& entry) override;
+	void onPoolEntryCreated(IPlayerTextLabel& entry) override;
+	void onPoolEntryDestroyed(IPlayerTextLabel& entry) override;
 };

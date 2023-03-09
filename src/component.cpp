@@ -253,3 +253,308 @@ bool MainComponent::onPlayerUpdate(IPlayer& player, TimePoint now)
 {
 	return host_->invokeOnPlayerUpdate(player, now);
 }
+
+void MainComponent::onPlayerGiveDamageActor(IPlayer& player, IActor& actor, float amount, unsigned weapon, BodyPart part)
+{
+	host_->invokeOnPlayerGiveDamageActor(player, actor, amount, weapon, part);
+}
+
+void MainComponent::onActorStreamOut(IActor& actor, IPlayer& forPlayer)
+{
+	host_->invokeOnActorStreamOut(actor, forPlayer);
+}
+
+void MainComponent::onActorStreamIn(IActor& actor, IPlayer& forPlayer)
+{
+	host_->invokeOnActorStreamIn(actor, forPlayer);
+}
+
+void MainComponent::onPlayerEnterCheckpoint(IPlayer& player)
+{
+	host_->invokeOnPlayerEnterCheckpoint(player);
+}
+
+void MainComponent::onPlayerLeaveCheckpoint(IPlayer& player)
+{
+	host_->invokeOnPlayerLeaveCheckpoint(player);
+}
+
+void MainComponent::onPlayerEnterRaceCheckpoint(IPlayer& player)
+{
+	host_->invokeOnPlayerEnterRaceCheckpoint(player);
+}
+
+void MainComponent::onPlayerLeaveRaceCheckpoint(IPlayer& player)
+{
+	host_->invokeOnPlayerLeaveRaceCheckpoint(player);
+}
+
+bool MainComponent::onPlayerRequestClass(IPlayer& player, unsigned int classId)
+{
+	return host_->invokeOnPlayerRequestClass(player, classId);
+}
+
+bool MainComponent::onConsoleText(StringView command, StringView parameters, const ConsoleCommandSenderData& sender)
+{
+	return host_->invokeOnConsoleText(command, parameters, sender);
+}
+
+void MainComponent::onRconLoginAttempt(IPlayer& player, StringView password, bool success)
+{
+	host_->invokeOnRconLoginAttempt(player, password, success);
+}
+
+void MainComponent::onConsoleCommandListRequest(FlatHashSet<StringView>& commands)
+{
+	host_->invokeOnConsoleCommandListRequest(commands);
+}
+
+void MainComponent::onPlayerFinishedDownloading(IPlayer& player)
+{
+	host_->invokeOnPlayerFinishedDownloading(player);
+}
+
+bool MainComponent::onPlayerRequestDownload(IPlayer& player, ModelDownloadType type, uint32_t checksum)
+{
+	return host_->invokeOnPlayerRequestDownload(player, type, checksum);
+}
+
+void MainComponent::onDialogResponse(IPlayer& player, int dialogId, DialogResponse response, int listItem, StringView inputText)
+{
+	host_->invokeOnDialogResponse(player, dialogId, response, listItem, inputText);
+}
+
+void MainComponent::onPlayerEnterGangZone(IPlayer& player, IGangZone& zone)
+{
+	host_->invokeOnPlayerEnterGangZone(player, zone);
+}
+
+void MainComponent::onPlayerLeaveGangZone(IPlayer& player, IGangZone& zone)
+{
+	host_->invokeOnPlayerLeaveGangZone(player, zone);
+}
+
+void MainComponent::onPlayerClickGangZone(IPlayer& player, IGangZone& zone)
+{
+	host_->invokeOnPlayerClickGangZone(player, zone);
+}
+
+void MainComponent::onPlayerSelectedMenuRow(IPlayer& player, MenuRow row)
+{
+	host_->invokeOnPlayerSelectedMenuRow(player, row);
+}
+
+void MainComponent::onPlayerExitedMenu(IPlayer& player)
+{
+	host_->invokeOnPlayerExitedMenu(player);
+}
+
+void MainComponent::onMoved(IObject& object)
+{
+	host_->invokeOnObjectMoved(object);
+}
+
+void MainComponent::onPlayerObjectMoved(IPlayer& player, IPlayerObject& object)
+{
+	host_->invokeOnPlayerObjectMoved(player, object);
+}
+
+void MainComponent::onObjectSelected(IPlayer& player, IObject& object, int model, Vector3 position)
+{
+	host_->invokeOnObjectSelected(player, object, model, position);
+}
+
+void MainComponent::onPlayerObjectSelected(IPlayer& player, IPlayerObject& object, int model, Vector3 position)
+{
+	host_->invokeOnPlayerObjectSelected(player, object, model, position);
+}
+
+void MainComponent::onObjectEdited(IPlayer& player, IObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation)
+{
+	host_->invokeOnObjectEdited(player, object, response, offset, rotation);
+}
+
+void MainComponent::onPlayerObjectEdited(IPlayer& player, IPlayerObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation)
+{
+	host_->invokeOnPlayerObjectEdited(player, object, response, offset, rotation);
+}
+
+void MainComponent::onPlayerAttachedObjectEdited(IPlayer& player, int index, bool saved, const ObjectAttachmentSlotData& data)
+{
+	host_->invokeOnPlayerAttachedObjectEdited(player, index, saved, data);
+}
+
+void MainComponent::onPlayerPickUpPickup(IPlayer& player, IPickup& pickup)
+{
+	host_->invokeOnPlayerPickUpPickup(player, pickup);
+}
+
+void MainComponent::onPlayerClickTextDraw(IPlayer& player, ITextDraw& td)
+{
+	host_->invokeOnPlayerClickTextDraw(player, td);
+}
+
+void MainComponent::onPlayerClickPlayerTextDraw(IPlayer& player, IPlayerTextDraw& td)
+{
+	host_->invokeOnPlayerClickPlayerTextDraw(player, td);
+}
+
+bool MainComponent::onPlayerCancelTextDrawSelection(IPlayer& player)
+{
+	return host_->invokeOnPlayerCancelTextDrawSelection(player);
+}
+
+bool MainComponent::onPlayerCancelPlayerTextDrawSelection(IPlayer& player)
+{
+	return host_->invokeOnPlayerCancelPlayerTextDrawSelection(player);
+}
+
+void MainComponent::onVehicleStreamIn(IVehicle& vehicle, IPlayer& player)
+{
+	host_->invokeOnVehicleStreamIn(vehicle, player);
+}
+
+void MainComponent::onVehicleStreamOut(IVehicle& vehicle, IPlayer& player)
+{
+	host_->invokeOnVehicleStreamOut(vehicle, player);
+}
+
+void MainComponent::onVehicleDeath(IVehicle& vehicle, IPlayer& player)
+{
+	host_->invokeOnVehicleDeath(vehicle, player);
+}
+
+void MainComponent::onPlayerEnterVehicle(IPlayer& player, IVehicle& vehicle, bool passenger)
+{
+	host_->invokeOnPlayerEnterVehicle(player, vehicle, passenger);
+}
+
+void MainComponent::onPlayerExitVehicle(IPlayer& player, IVehicle& vehicle)
+{
+	host_->invokeOnPlayerExitVehicle(player, vehicle);
+}
+
+void MainComponent::onVehicleDamageStatusUpdate(IVehicle& vehicle, IPlayer& player)
+{
+	host_->invokeOnVehicleDamageStatusUpdate(vehicle, player);
+}
+
+bool MainComponent::onVehiclePaintJob(IPlayer& player, IVehicle& vehicle, int paintJob)
+{
+	return host_->invokeOnVehiclePaintJob(player, vehicle, paintJob);
+}
+
+bool MainComponent::onVehicleMod(IPlayer& player, IVehicle& vehicle, int component)
+{
+	return host_->invokeOnVehicleMod(player, vehicle, component);
+}
+
+bool MainComponent::onVehicleRespray(IPlayer& player, IVehicle& vehicle, int colour1, int colour2)
+{
+	return host_->invokeOnVehicleRespray(player, vehicle, colour1, colour2);
+}
+
+void MainComponent::onEnterExitModShop(IPlayer& player, bool enterexit, int interiorID)
+{
+	host_->invokeOnEnterExitModShop(player, enterexit, interiorID);
+}
+
+void MainComponent::onVehicleSpawn(IVehicle& vehicle)
+{
+	host_->invokeOnVehicleSpawn(vehicle);
+}
+
+bool MainComponent::onUnoccupiedVehicleUpdate(IVehicle& vehicle, IPlayer& player, UnoccupiedVehicleUpdate const updateData)
+{
+	return host_->invokeOnUnoccupiedVehicleUpdate(vehicle, player, updateData);
+}
+
+bool MainComponent::onTrailerUpdate(IPlayer& player, IVehicle& trailer)
+{
+	return host_->invokeOnTrailerUpdate(player, trailer);
+}
+
+bool MainComponent::onVehicleSirenStateChange(IPlayer& player, IVehicle& vehicle, uint8_t sirenState)
+{
+	return host_->invokeOnVehicleSirenStateChange(player, vehicle, sirenState);
+}
+
+void MainComponent::onPoolEntryCreated(IActor& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IActor& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IPickup& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IPickup& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IPlayer& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IPlayer& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IVehicle& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IVehicle& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IObject& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IObject& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IPlayerObject& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IPlayerObject& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(ITextLabel& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(ITextLabel& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IPlayerTextLabel& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IPlayerTextLabel& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
