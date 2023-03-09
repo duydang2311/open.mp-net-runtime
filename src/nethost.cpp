@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <iostream>
 #include <string_view>
+#include "Server/Components/Classes/classes.hpp"
 #include "Server/Components/Dialogs/dialogs.hpp"
 #include "Server/Components/Objects/objects.hpp"
 #include "core.hpp"
@@ -260,7 +261,7 @@ void NetHost::invokeOnIncomingConnection(IPlayer& player, StringView ipAddress, 
 	typedef void(CORECLR_DELEGATE_CALLTYPE * OnIncomingConnectionPtr)(UnmanagedEntityId, const char*, unsigned short);
 	OnIncomingConnectionPtr onIncomingConnection = nullptr;
 	int rc = getManagedFunctionPointer(
-		CAPI_TYPE_NAME(Events.NativeCoreEvent),
+		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnIncomingConnection",
 		(void**)&onIncomingConnection);
 	assert(rc == 0);
@@ -569,7 +570,7 @@ void NetHost::invokeOnClientCheckResponse(IPlayer& player, int actionType, int a
 
 bool NetHost::invokeOnPlayerUpdate(IPlayer& player, TimePoint now)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerUpdatePtr)(UnmanagedEntityId, long long);
+	typedef bool(CORECLR_DELEGATE_CALLTYPE * OnPlayerUpdatePtr)(UnmanagedEntityId, long long);
 	OnPlayerUpdatePtr onPlayerUpdate = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
@@ -1309,4 +1310,97 @@ void NetHost::invokeOnPoolEntryDestroyed(IPlayerTextLabel& entry)
 		(void**)&onPlayerTextLabelDestroyed);
 	assert(rc == 0);
 	return onPlayerTextLabelDestroyed(UnmanagedEntityId(entry));
+}
+
+void NetHost::invokeOnPoolEntryCreated(IClass& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnClassCreatedPtr)(int);
+	OnClassCreatedPtr onClassCreated = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnClassCreated",
+		(void**)&onClassCreated);
+	assert(rc == 0);
+	return onClassCreated(entry.getID());
+}
+
+void NetHost::invokeOnPoolEntryDestroyed(IClass& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnClassDestroyedPtr)(int);
+	OnClassDestroyedPtr onClassDestroyed = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnClassDestroyed",
+		(void**)&onClassDestroyed);
+	assert(rc == 0);
+	return onClassDestroyed(entry.getID());
+}
+
+void NetHost::invokeOnPoolEntryCreated(IGangZone& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnGangZoneCreatedPtr)(int);
+	OnGangZoneCreatedPtr onGangZoneCreated = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnGangZoneCreated",
+		(void**)&onGangZoneCreated);
+	assert(rc == 0);
+	return onGangZoneCreated(entry.getID());
+}
+
+void NetHost::invokeOnPoolEntryDestroyed(IGangZone& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnGangZoneDestroyedPtr)(int);
+	OnGangZoneDestroyedPtr onGangZoneDestroyed = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnGangZoneDestroyed",
+		(void**)&onGangZoneDestroyed);
+	assert(rc == 0);
+	return onGangZoneDestroyed(entry.getID());
+}
+
+void NetHost::invokeOnPoolEntryCreated(IMenu& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnMenuCreatedPtr)(int);
+	OnMenuCreatedPtr onMenuCreated = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnMenuCreated",
+		(void**)&onMenuCreated);
+	assert(rc == 0);
+	return onMenuCreated(entry.getID());
+}
+void NetHost::invokeOnPoolEntryDestroyed(IMenu& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnMenuDestroyedPtr)(int);
+	OnMenuDestroyedPtr onMenuDestroyed = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnMenuDestroyed",
+		(void**)&onMenuDestroyed);
+	assert(rc == 0);
+	return onMenuDestroyed(entry.getID());
+}
+void NetHost::invokeOnPoolEntryCreated(ITextDraw& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnTextDrawCreatedPtr)(int);
+	OnTextDrawCreatedPtr onTextDrawCreated = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnTextDrawCreated",
+		(void**)&onTextDrawCreated);
+	assert(rc == 0);
+	return onTextDrawCreated(entry.getID());
+}
+void NetHost::invokeOnPoolEntryDestroyed(ITextDraw& entry)
+{
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnTextDrawDestroyedPtr)(int);
+	OnTextDrawDestroyedPtr onTextDrawDestroyed = nullptr;
+	int rc = getManagedFunctionPointer(
+		CAPI_TYPE_NAME(Events.NativePoolEvent),
+		"OnTextDrawDestroyed",
+		(void**)&onTextDrawDestroyed);
+	assert(rc == 0);
+	return onTextDrawDestroyed(entry.getID());
 }

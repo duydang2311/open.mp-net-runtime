@@ -59,15 +59,29 @@ class MainComponent final : public IComponent,
 							public PoolEventHandler<IPlayerObject>,
 							public PoolEventHandler<ITextLabel>,
 							public PoolEventHandler<IPlayerTextLabel>,
-							public PoolEventHandler<IPickup>
+							public PoolEventHandler<IPickup>,
+							public PoolEventHandler<IClass>,
+							public PoolEventHandler<IGangZone>,
+							public PoolEventHandler<IMenu>,
+							public PoolEventHandler<ITextDraw>
 {
 private:
 	inline static MainComponent* instance_ = nullptr;
 
 	ICore* core_ = nullptr;
-	ITextDrawsComponent* text_draw_component_ = nullptr;
-	IVehiclesComponent* vehicles_component_ = nullptr;
-	IObjectsComponent* objects_component_ = nullptr;
+	IVehiclesComponent* vehiclesComponent = nullptr;
+	IObjectsComponent* objectsComponent = nullptr;
+	IActorsComponent* actorsComponent_ = nullptr;
+	ICheckpointsComponent* checkpointsComponent_ = nullptr;
+	IClassesComponent* classesComponent_ = nullptr;
+	IConsoleComponent* consoleComponent_ = nullptr;
+	ICustomModelsComponent* customModelsComponent_ = nullptr;
+	IDialogsComponent* dialogsComponent_ = nullptr;
+	IGangZonesComponent* gangZonesComponent_ = nullptr;
+	IMenusComponent* menusComponent_ = nullptr;
+	IPickupsComponent* pickupsComponent_ = nullptr;
+	ITextDrawsComponent* textDrawsComponent_ = nullptr;
+	ITextLabelsComponent* textLabelsComponent_ = nullptr;
 	NetHost* host_ = nullptr;
 	TickDelegate tick_delegate_ = nullptr;
 
@@ -234,4 +248,12 @@ public:
 	void onPoolEntryDestroyed(ITextLabel& entry) override;
 	void onPoolEntryCreated(IPlayerTextLabel& entry) override;
 	void onPoolEntryDestroyed(IPlayerTextLabel& entry) override;
+	void onPoolEntryCreated(IClass& entry) override;
+	void onPoolEntryDestroyed(IClass& entry) override;
+	void onPoolEntryCreated(IGangZone& entry) override;
+	void onPoolEntryDestroyed(IGangZone& entry) override;
+	void onPoolEntryCreated(IMenu& entry) override;
+	void onPoolEntryDestroyed(IMenu& entry) override;
+	void onPoolEntryCreated(ITextDraw& entry) override;
+	void onPoolEntryDestroyed(ITextDraw& entry) override;
 };

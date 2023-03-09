@@ -157,6 +157,14 @@ public:
 	void invokeOnPoolEntryDestroyed(ITextLabel& entry);
 	void invokeOnPoolEntryCreated(IPlayerTextLabel& entry);
 	void invokeOnPoolEntryDestroyed(IPlayerTextLabel& entry);
+	void invokeOnPoolEntryCreated(IClass& entry);
+	void invokeOnPoolEntryDestroyed(IClass& entry);
+	void invokeOnPoolEntryCreated(IGangZone& entry);
+	void invokeOnPoolEntryDestroyed(IGangZone& entry);
+	void invokeOnPoolEntryCreated(IMenu& entry);
+	void invokeOnPoolEntryDestroyed(IMenu& entry);
+	void invokeOnPoolEntryCreated(ITextDraw& entry);
+	void invokeOnPoolEntryDestroyed(ITextDraw& entry);
 
 private:
 	inline static const char* event_type_name_ = "Omp.Net.CApi.Events.NativePlayerEvent, Omp.Net.CApi";

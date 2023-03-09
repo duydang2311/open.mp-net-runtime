@@ -6,8 +6,18 @@
  *  The original code is copyright (c) 2022, open.mp team and contributors.
  */
 
+#include "Server/Components/Actors/actors.hpp"
+#include "Server/Components/Checkpoints/checkpoints.hpp"
+#include "Server/Components/Classes/classes.hpp"
+#include "Server/Components/Console/console.hpp"
+#include "Server/Components/CustomModels/custommodels.hpp"
+#include "Server/Components/Dialogs/dialogs.hpp"
+#include "Server/Components/GangZones/gangzones.hpp"
+#include "Server/Components/Menus/menus.hpp"
 #include "Server/Components/Objects/objects.hpp"
+#include "Server/Components/Pickups/pickups.hpp"
 #include "Server/Components/TextDraws/textdraws.hpp"
+#include "Server/Components/TextLabels/textlabels.hpp"
 #include "Server/Components/Vehicles/vehicles.hpp"
 #include "core.hpp"
 
@@ -16,10 +26,67 @@
 #include <chrono>
 #include <ratio>
 
+#define REMOVE_EVENT_HANDLER(component)                           \
+	if (component)                                                \
+	{                                                             \
+		component->getEventDispatcher().removeEventHandler(this); \
+	}
+
+#define REMOVE_POOL_EVENT_HANDLER(component)                          \
+	if (component)                                                    \
+	{                                                                 \
+		component->getPoolEventDispatcher().removeEventHandler(this); \
+	}
+
+#define ADD_EVENT_HANDLER(component)                           \
+	if (component)                                             \
+	{                                                          \
+		component->getEventDispatcher().addEventHandler(this); \
+	}
+
+#define ADD_POOL_EVENT_HANDLER(component)                          \
+	if (component)                                                 \
+	{                                                              \
+		component->getPoolEventDispatcher().addEventHandler(this); \
+	}
+
 MainComponent::~MainComponent()
 {
-	core_->getPlayers().getPlayerConnectDispatcher().removeEventHandler(this);
-	core_->getPlayers().getPlayerSpawnDispatcher().removeEventHandler(this);
+	if (core_)
+	{
+		core_->getPlayers().getPlayerConnectDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerSpawnDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerChangeDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerCheckDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerClickDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerDamageDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerShotDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerStreamDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerTextDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPlayerUpdateDispatcher().removeEventHandler(this);
+	}
+
+	REMOVE_EVENT_HANDLER(actorsComponent_);
+	REMOVE_POOL_EVENT_HANDLER(actorsComponent_);
+	REMOVE_EVENT_HANDLER(checkpointsComponent_);
+	REMOVE_EVENT_HANDLER(classesComponent_);
+	REMOVE_POOL_EVENT_HANDLER(classesComponent_);
+	REMOVE_EVENT_HANDLER(consoleComponent_);
+	REMOVE_EVENT_HANDLER(customModelsComponent_);
+	REMOVE_EVENT_HANDLER(dialogsComponent_);
+	REMOVE_EVENT_HANDLER(gangZonesComponent_);
+	REMOVE_POOL_EVENT_HANDLER(gangZonesComponent_);
+	REMOVE_EVENT_HANDLER(menusComponent_);
+	REMOVE_POOL_EVENT_HANDLER(menusComponent_);
+	REMOVE_EVENT_HANDLER(pickupsComponent_);
+	REMOVE_POOL_EVENT_HANDLER(pickupsComponent_);
+	REMOVE_EVENT_HANDLER(objectsComponent);
+	REMOVE_POOL_EVENT_HANDLER(objectsComponent);
+	REMOVE_EVENT_HANDLER(textDrawsComponent_);
+	REMOVE_POOL_EVENT_HANDLER(textDrawsComponent_);
+	REMOVE_POOL_EVENT_HANDLER(textLabelsComponent_);
+	REMOVE_EVENT_HANDLER(vehiclesComponent);
+	REMOVE_EVENT_HANDLER(vehiclesComponent);
 }
 
 void MainComponent::onLoad(ICore* c)
@@ -31,6 +98,14 @@ void MainComponent::onLoad(ICore* c)
 
 	core_->getPlayers().getPlayerConnectDispatcher().addEventHandler(this);
 	core_->getPlayers().getPlayerSpawnDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerChangeDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerCheckDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerClickDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerDamageDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerShotDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerStreamDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerTextDispatcher().addEventHandler(this);
+	core_->getPlayers().getPlayerUpdateDispatcher().addEventHandler(this);
 
 	host_->invokeInitializeCore();
 	core_->logLn(LogLevel::Message, "open.mp-net core intialized successfully, gamemode now starting");
@@ -38,24 +113,56 @@ void MainComponent::onLoad(ICore* c)
 
 void MainComponent::onInit(IComponentList* components)
 {
-	text_draw_component_ = components->queryComponent<ITextDrawsComponent>();
-	vehicles_component_ = components->queryComponent<IVehiclesComponent>();
-	objects_component_ = components->queryComponent<IObjectsComponent>();
+	vehiclesComponent = components->queryComponent<IVehiclesComponent>();
+	objectsComponent = components->queryComponent<IObjectsComponent>();
+	actorsComponent_ = components->queryComponent<IActorsComponent>();
+	checkpointsComponent_ = components->queryComponent<ICheckpointsComponent>();
+	classesComponent_ = components->queryComponent<IClassesComponent>();
+	consoleComponent_ = components->queryComponent<IConsoleComponent>();
+	customModelsComponent_ = components->queryComponent<ICustomModelsComponent>();
+	dialogsComponent_ = components->queryComponent<IDialogsComponent>();
+	gangZonesComponent_ = components->queryComponent<IGangZonesComponent>();
+	menusComponent_ = components->queryComponent<IMenusComponent>();
+	pickupsComponent_ = components->queryComponent<IPickupsComponent>();
+	textDrawsComponent_ = components->queryComponent<ITextDrawsComponent>();
+	textLabelsComponent_ = components->queryComponent<ITextLabelsComponent>();
+
+	ADD_EVENT_HANDLER(actorsComponent_);
+	ADD_POOL_EVENT_HANDLER(actorsComponent_);
+	ADD_EVENT_HANDLER(checkpointsComponent_);
+	ADD_EVENT_HANDLER(classesComponent_);
+	ADD_POOL_EVENT_HANDLER(classesComponent_);
+	ADD_EVENT_HANDLER(consoleComponent_);
+	ADD_EVENT_HANDLER(customModelsComponent_);
+	ADD_EVENT_HANDLER(dialogsComponent_);
+	ADD_EVENT_HANDLER(gangZonesComponent_);
+	ADD_POOL_EVENT_HANDLER(gangZonesComponent_);
+	ADD_EVENT_HANDLER(menusComponent_);
+	ADD_POOL_EVENT_HANDLER(menusComponent_);
+	ADD_EVENT_HANDLER(pickupsComponent_);
+	ADD_POOL_EVENT_HANDLER(pickupsComponent_);
+	ADD_EVENT_HANDLER(objectsComponent);
+	ADD_POOL_EVENT_HANDLER(objectsComponent);
+	ADD_EVENT_HANDLER(textDrawsComponent_);
+	ADD_POOL_EVENT_HANDLER(textDrawsComponent_);
+	ADD_POOL_EVENT_HANDLER(textLabelsComponent_);
+	ADD_EVENT_HANDLER(vehiclesComponent);
+	ADD_EVENT_HANDLER(vehiclesComponent);
 }
 
 void MainComponent::onFree(IComponent* component)
 {
-	if (component == text_draw_component_)
+	if (component == textDrawsComponent_)
 	{
-		text_draw_component_ = nullptr;
+		textDrawsComponent_ = nullptr;
 	}
-	else if (component == vehicles_component_)
+	else if (component == vehiclesComponent)
 	{
-		vehicles_component_ = nullptr;
+		vehiclesComponent = nullptr;
 	}
-	else if (component == objects_component_)
+	else if (component == objectsComponent)
 	{
-		objects_component_ = nullptr;
+		objectsComponent = nullptr;
 	}
 }
 
@@ -71,17 +178,17 @@ void MainComponent::reset()
 
 ITextDrawsComponent* MainComponent::getTextDrawComponent()
 {
-	return text_draw_component_;
+	return textDrawsComponent_;
 }
 
 IVehiclesComponent* MainComponent::getVehiclesComponent()
 {
-	return vehicles_component_;
+	return vehiclesComponent;
 }
 
 IObjectsComponent* MainComponent::getObjectsComponent()
 {
-	return objects_component_;
+	return objectsComponent;
 }
 
 ICore* MainComponent::getCore()
@@ -555,6 +662,46 @@ void MainComponent::onPoolEntryCreated(IPlayerTextLabel& entry)
 }
 
 void MainComponent::onPoolEntryDestroyed(IPlayerTextLabel& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IClass& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IClass& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IGangZone& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IGangZone& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(IMenu& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(IMenu& entry)
+{
+	host_->invokeOnPoolEntryDestroyed(entry);
+}
+
+void MainComponent::onPoolEntryCreated(ITextDraw& entry)
+{
+	host_->invokeOnPoolEntryCreated(entry);
+}
+
+void MainComponent::onPoolEntryDestroyed(ITextDraw& entry)
 {
 	host_->invokeOnPoolEntryDestroyed(entry);
 }
