@@ -64,6 +64,7 @@ MainComponent::~MainComponent()
 		core_->getPlayers().getPlayerStreamDispatcher().removeEventHandler(this);
 		core_->getPlayers().getPlayerTextDispatcher().removeEventHandler(this);
 		core_->getPlayers().getPlayerUpdateDispatcher().removeEventHandler(this);
+		core_->getPlayers().getPoolEventDispatcher().removeEventHandler(this);
 	}
 
 	REMOVE_EVENT_HANDLER(actorsComponent_);
@@ -106,6 +107,7 @@ void MainComponent::onLoad(ICore* c)
 	core_->getPlayers().getPlayerStreamDispatcher().addEventHandler(this);
 	core_->getPlayers().getPlayerTextDispatcher().addEventHandler(this);
 	core_->getPlayers().getPlayerUpdateDispatcher().addEventHandler(this);
+	core_->getPlayers().getPoolEventDispatcher().addEventHandler(this);
 
 	host_->invokeInitializeCore();
 	core_->logLn(LogLevel::Message, "open.mp-net core intialized successfully, gamemode now starting");
@@ -608,6 +610,7 @@ void MainComponent::onPoolEntryDestroyed(IPickup& entry)
 
 void MainComponent::onPoolEntryCreated(IPlayer& entry)
 {
+	std::cout << "onPoolEntryCreated(IPlayer& entry): " << entry.getID() << std::endl;
 	host_->invokeOnPoolEntryCreated(entry);
 }
 

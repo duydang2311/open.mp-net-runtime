@@ -17,6 +17,7 @@
 #include "Server/Components/Dialogs/dialogs.hpp"
 #include "Server/Components/Objects/objects.hpp"
 #include "core.hpp"
+#include "entity.hpp"
 #include "player.hpp"
 #include "src/interop.hpp"
 #include "src/nethost.hpp"
