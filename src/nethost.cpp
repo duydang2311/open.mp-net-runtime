@@ -4,6 +4,7 @@
 
 #include "src/nethost.hpp"
 #include "src/component.hpp"
+#include "src/utils/os.hpp"
 
 #ifdef WINDOWS
 #include <Windows.h>
