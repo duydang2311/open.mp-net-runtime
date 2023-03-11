@@ -1,12 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <iostream>
 #include <string_view>
 
 #include "core.hpp"
