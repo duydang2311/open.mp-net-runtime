@@ -2,31 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#include <cstdio>
-#include <cstdlib>
-#include <filesystem>
-#include <fstream>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <iostream>
-#include <string_view>
-#include "Server/Components/Classes/classes.hpp"
-#include "Server/Components/Dialogs/dialogs.hpp"
-#include "Server/Components/Objects/objects.hpp"
-#include "core.hpp"
-#include "player.hpp"
-#include "src/interop.hpp"
 #include "src/nethost.hpp"
 #include "src/component.hpp"
-
-#include "native/nethost.h"
-#include "native/coreclr_delegates.h"
-#include "native/hostfxr.h"
-#include "src/utils/os.hpp"
-#include "types.hpp"
 
 #ifdef WINDOWS
 #include <Windows.h>
