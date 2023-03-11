@@ -17,3 +17,9 @@ struct UnmanagedEntityId
 	{
 	}
 };
+
+struct CWeaponSlotData
+{
+	uint8_t id;
+	uint32_t ammo;
+};
