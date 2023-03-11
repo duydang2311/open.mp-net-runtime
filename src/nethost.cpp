@@ -235,422 +235,422 @@ void NetHost::invokeOnReady()
 
 void NetHost::invokeOnIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnIncomingConnectionPtr)(UnmanagedEntityId, const char*, unsigned short);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnIncomingConnectionPtr)(EntityId, const char*, unsigned short);
 	OnIncomingConnectionPtr onIncomingConnection = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnIncomingConnection",
 		(void**)&onIncomingConnection);
 	assert(rc == 0);
-	onIncomingConnection(UnmanagedEntityId(player), ipAddress.data(), port);
+	onIncomingConnection(EntityId(player), ipAddress.data(), port);
 }
 
 void NetHost::invokeOnPlayerConnect(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerConnectPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerConnectPtr)(EntityId);
 	OnPlayerConnectPtr onPlayerConnect = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerConnect",
 		(void**)&onPlayerConnect);
 	assert(rc == 0);
-	onPlayerConnect(UnmanagedEntityId(player));
+	onPlayerConnect(EntityId(player));
 }
 
 void NetHost::invokeOnPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerDisconnectPtr)(UnmanagedEntityId, PeerDisconnectReason);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerDisconnectPtr)(EntityId, PeerDisconnectReason);
 	OnPlayerDisconnectPtr onPlayerDisconnect = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerDisconnect",
 		(void**)&onPlayerDisconnect);
 	assert(rc == 0);
-	onPlayerDisconnect(UnmanagedEntityId(player), reason);
+	onPlayerDisconnect(EntityId(player), reason);
 }
 
 void NetHost::invokeOnPlayerClientInit(IPlayer& player)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerClientInitPtr)(UnmanagedEntityId);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerClientInitPtr)(EntityId);
 	OnPlayerClientInitPtr onPlayerClientInit = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerClientInit",
 		(void**)&onPlayerClientInit);
 	assert(rc == 0);
-	onPlayerClientInit(UnmanagedEntityId(player));
+	onPlayerClientInit(EntityId(player));
 }
 
 bool NetHost::invokeOnPlayerRequestSpawn(IPlayer& player)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerRequestSpawnPtr)(UnmanagedEntityId);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerRequestSpawnPtr)(EntityId);
 	OnPlayerRequestSpawnPtr onPlayerRequestSpawn = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerRequestSpawn",
 		(void**)&onPlayerRequestSpawn);
 	assert(rc == 0);
-	return onPlayerRequestSpawn(UnmanagedEntityId(player));
+	return onPlayerRequestSpawn(EntityId(player));
 }
 
 void NetHost::invokeOnPlayerSpawn(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerSpawnPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerSpawnPtr)(EntityId);
 	OnPlayerSpawnPtr onPlayerSpawn = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerSpawn",
 		(void**)&onPlayerSpawn);
 	assert(rc == 0);
-	onPlayerSpawn(UnmanagedEntityId(player));
+	onPlayerSpawn(EntityId(player));
 }
 
 void NetHost::invokeOnPlayerStreamIn(IPlayer& player, IPlayer& forPlayer)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerStreamInPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerStreamInPtr)(EntityId, EntityId);
 	OnPlayerStreamInPtr onPlayerStreamIn = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerStreamIn",
 		(void**)&onPlayerStreamIn);
 	assert(rc == 0);
-	onPlayerStreamIn(UnmanagedEntityId(player), UnmanagedEntityId(forPlayer));
+	onPlayerStreamIn(EntityId(player), EntityId(forPlayer));
 }
 
 void NetHost::invokeOnPlayerStreamOut(IPlayer& player, IPlayer& forPlayer)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerStreamOutPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerStreamOutPtr)(EntityId, EntityId);
 	OnPlayerStreamOutPtr onPlayerStreamOut = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerStreamOut",
 		(void**)&onPlayerStreamOut);
 	assert(rc == 0);
-	onPlayerStreamOut(UnmanagedEntityId(player), UnmanagedEntityId(forPlayer));
+	onPlayerStreamOut(EntityId(player), EntityId(forPlayer));
 }
 
 bool NetHost::invokeOnPlayerText(IPlayer& player, StringView message)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerTextPtr)(UnmanagedEntityId, const char*);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerTextPtr)(EntityId, const char*);
 	OnPlayerTextPtr onPlayerText = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerText",
 		(void**)&onPlayerText);
 	assert(rc == 0);
-	return onPlayerText(UnmanagedEntityId(player), message.data());
+	return onPlayerText(EntityId(player), message.data());
 }
 
 bool NetHost::invokeOnPlayerCommandText(IPlayer& player, StringView message)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerCommandTextPtr)(UnmanagedEntityId, const char*);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerCommandTextPtr)(EntityId, const char*);
 	OnPlayerCommandTextPtr onPlayerCommandText = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerCommandText",
 		(void**)&onPlayerCommandText);
 	assert(rc == 0);
-	return onPlayerCommandText(UnmanagedEntityId(player), message.data());
+	return onPlayerCommandText(EntityId(player), message.data());
 }
 
 bool NetHost::invokeOnPlayerShotMissed(IPlayer& player, const PlayerBulletData& bulletData)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotMissedPtr)(UnmanagedEntityId, PlayerBulletData);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotMissedPtr)(EntityId, PlayerBulletData);
 	OnPlayerShotMissedPtr onPlayerShotMissed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerShotMissed",
 		(void**)&onPlayerShotMissed);
 	assert(rc == 0);
-	return onPlayerShotMissed(UnmanagedEntityId(player), bulletData);
+	return onPlayerShotMissed(EntityId(player), bulletData);
 }
 
 bool NetHost::invokeOnPlayerShotPlayer(IPlayer& player, IPlayer& target, const PlayerBulletData& bulletData)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotPlayerPtr)(UnmanagedEntityId, UnmanagedEntityId, PlayerBulletData);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotPlayerPtr)(EntityId, EntityId, PlayerBulletData);
 	OnPlayerShotPlayerPtr onPlayerShotPlayer = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerShotPlayer",
 		(void**)&onPlayerShotPlayer);
 	assert(rc == 0);
-	return onPlayerShotPlayer(UnmanagedEntityId(player), UnmanagedEntityId(target), bulletData);
+	return onPlayerShotPlayer(EntityId(player), EntityId(target), bulletData);
 }
 
 bool NetHost::invokeOnPlayerShotVehicle(IPlayer& player, IVehicle& target, const PlayerBulletData& bulletData)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotVehiclePtr)(UnmanagedEntityId, UnmanagedEntityId, PlayerBulletData);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotVehiclePtr)(EntityId, EntityId, PlayerBulletData);
 	OnPlayerShotVehiclePtr onPlayerShotVehicle = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerShotVehicle",
 		(void**)&onPlayerShotVehicle);
 	assert(rc == 0);
-	return onPlayerShotVehicle(UnmanagedEntityId(player), UnmanagedEntityId(target), bulletData);
+	return onPlayerShotVehicle(EntityId(player), EntityId(target), bulletData);
 }
 
 bool NetHost::invokeOnPlayerShotObject(IPlayer& player, IObject& target, const PlayerBulletData& bulletData)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotObjectPtr)(UnmanagedEntityId, UnmanagedEntityId, PlayerBulletData);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotObjectPtr)(EntityId, EntityId, PlayerBulletData);
 	OnPlayerShotObjectPtr onPlayerShotObject = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerShotObject",
 		(void**)&onPlayerShotObject);
 	assert(rc == 0);
-	return onPlayerShotObject(UnmanagedEntityId(player), UnmanagedEntityId(target), bulletData);
+	return onPlayerShotObject(EntityId(player), EntityId(target), bulletData);
 }
 
 bool NetHost::invokeOnPlayerShotPlayerObject(IPlayer& player, IPlayerObject& target, const PlayerBulletData& bulletData)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotPlayerObjectPtr)(UnmanagedEntityId, UnmanagedEntityId, PlayerBulletData);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerShotPlayerObjectPtr)(EntityId, EntityId, PlayerBulletData);
 	OnPlayerShotPlayerObjectPtr onPlayerShotPlayerObject = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerShotPlayerObject",
 		(void**)&onPlayerShotPlayerObject);
 	assert(rc == 0);
-	return onPlayerShotPlayerObject(UnmanagedEntityId(player), UnmanagedEntityId(target), bulletData);
+	return onPlayerShotPlayerObject(EntityId(player), EntityId(target), bulletData);
 }
 
 void NetHost::invokeOnPlayerScoreChange(IPlayer& player, int score)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerScoreChangePtr)(UnmanagedEntityId, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerScoreChangePtr)(EntityId, int);
 	OnPlayerScoreChangePtr onPlayerScoreChange = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerScoreChange",
 		(void**)&onPlayerScoreChange);
 	assert(rc == 0);
-	onPlayerScoreChange(UnmanagedEntityId(player), score);
+	onPlayerScoreChange(EntityId(player), score);
 }
 
 void NetHost::invokeOnPlayerNameChange(IPlayer& player, StringView oldName)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerNameChangePtr)(UnmanagedEntityId, const char*);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerNameChangePtr)(EntityId, const char*);
 	OnPlayerNameChangePtr onPlayerNameChange = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerNameChange",
 		(void**)&onPlayerNameChange);
 	assert(rc == 0);
-	onPlayerNameChange(UnmanagedEntityId(player), oldName.data());
+	onPlayerNameChange(EntityId(player), oldName.data());
 }
 
 void NetHost::invokeOnPlayerInteriorChange(IPlayer& player, unsigned newInterior, unsigned oldInterior)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerInteriorChangePtr)(UnmanagedEntityId, unsigned, unsigned);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerInteriorChangePtr)(EntityId, unsigned, unsigned);
 	OnPlayerInteriorChangePtr onPlayerInteriorChange = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerInteriorChange",
 		(void**)&onPlayerInteriorChange);
 	assert(rc == 0);
-	onPlayerInteriorChange(UnmanagedEntityId(player), newInterior, oldInterior);
+	onPlayerInteriorChange(EntityId(player), newInterior, oldInterior);
 }
 
 void NetHost::invokeOnPlayerStateChange(IPlayer& player, PlayerState newState, PlayerState oldState)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerStateChangePtr)(UnmanagedEntityId, PlayerState, PlayerState);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerStateChangePtr)(EntityId, PlayerState, PlayerState);
 	OnPlayerStateChangePtr onPlayerStateChange = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerStateChange",
 		(void**)&onPlayerStateChange);
 	assert(rc == 0);
-	onPlayerStateChange(UnmanagedEntityId(player), newState, oldState);
+	onPlayerStateChange(EntityId(player), newState, oldState);
 }
 
 void NetHost::invokeOnPlayerKeyStateChange(IPlayer& player, uint32_t newKeys, uint32_t oldKeys)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerKeyStateChangePtr)(UnmanagedEntityId, uint32_t, uint32_t);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerKeyStateChangePtr)(EntityId, uint32_t, uint32_t);
 	OnPlayerKeyStateChangePtr onPlayerKeyStateChange = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerKeyStateChange",
 		(void**)&onPlayerKeyStateChange);
 	assert(rc == 0);
-	onPlayerKeyStateChange(UnmanagedEntityId(player), newKeys, oldKeys);
+	onPlayerKeyStateChange(EntityId(player), newKeys, oldKeys);
 }
 
 void NetHost::invokeOnPlayerDeath(IPlayer& player, IPlayer* killer, int reason)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerDeathPtr)(UnmanagedEntityId, UnmanagedEntityId, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerDeathPtr)(EntityId, EntityId, int);
 	OnPlayerDeathPtr onPlayerDeath = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerDeath",
 		(void**)&onPlayerDeath);
 	assert(rc == 0);
-	onPlayerDeath(UnmanagedEntityId(player), UnmanagedEntityId(killer), reason);
+	onPlayerDeath(EntityId(player), EntityId(killer), reason);
 }
 
 void NetHost::invokeOnPlayerTakeDamage(IPlayer& player, IPlayer* from, float amount, unsigned weapon, BodyPart part)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerTakeDamagePtr)(UnmanagedEntityId, UnmanagedEntityId, float, unsigned, BodyPart);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerTakeDamagePtr)(EntityId, EntityId, float, unsigned, BodyPart);
 	OnPlayerTakeDamagePtr onPlayerTakeDamage = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerTakeDamage",
 		(void**)&onPlayerTakeDamage);
 	assert(rc == 0);
-	onPlayerTakeDamage(UnmanagedEntityId(player), UnmanagedEntityId(from), amount, weapon, part);
+	onPlayerTakeDamage(EntityId(player), EntityId(from), amount, weapon, part);
 }
 
 void NetHost::invokeOnPlayerGiveDamage(IPlayer& player, IPlayer& to, float amount, unsigned weapon, BodyPart part)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerGiveDamagePtr)(UnmanagedEntityId, UnmanagedEntityId, float, unsigned, BodyPart);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerGiveDamagePtr)(EntityId, EntityId, float, unsigned, BodyPart);
 	OnPlayerGiveDamagePtr onPlayerGiveDamage = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerGiveDamage",
 		(void**)&onPlayerGiveDamage);
 	assert(rc == 0);
-	onPlayerGiveDamage(UnmanagedEntityId(player), UnmanagedEntityId(to), amount, weapon, part);
+	onPlayerGiveDamage(EntityId(player), EntityId(to), amount, weapon, part);
 }
 
 void NetHost::invokeOnPlayerClickMap(IPlayer& player, Vector3 pos)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickMapPtr)(UnmanagedEntityId, Vector3);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickMapPtr)(EntityId, Vector3);
 	OnPlayerClickMapPtr onPlayerClickMap = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerClickMap",
 		(void**)&onPlayerClickMap);
 	assert(rc == 0);
-	onPlayerClickMap(UnmanagedEntityId(player), pos);
+	onPlayerClickMap(EntityId(player), pos);
 }
 
 void NetHost::invokeOnPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickPlayerPtr)(UnmanagedEntityId, UnmanagedEntityId, PlayerClickSource);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickPlayerPtr)(EntityId, EntityId, PlayerClickSource);
 	OnPlayerClickPlayerPtr onPlayerClickPlayer = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerClickPlayer",
 		(void**)&onPlayerClickPlayer);
 	assert(rc == 0);
-	onPlayerClickPlayer(UnmanagedEntityId(player), UnmanagedEntityId(clicked), source);
+	onPlayerClickPlayer(EntityId(player), EntityId(clicked), source);
 }
 
 void NetHost::invokeOnClientCheckResponse(IPlayer& player, int actionType, int address, int results)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnClientCheckResponsePtr)(UnmanagedEntityId, int, int, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnClientCheckResponsePtr)(EntityId, int, int, int);
 	OnClientCheckResponsePtr onClientCheckResponse = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnClientCheckResponse",
 		(void**)&onClientCheckResponse);
 	assert(rc == 0);
-	onClientCheckResponse(UnmanagedEntityId(player), actionType, address, results);
+	onClientCheckResponse(EntityId(player), actionType, address, results);
 }
 
 bool NetHost::invokeOnPlayerUpdate(IPlayer& player, TimePoint now)
 {
-	typedef bool(CORECLR_DELEGATE_CALLTYPE * OnPlayerUpdatePtr)(UnmanagedEntityId, long long);
+	typedef bool(CORECLR_DELEGATE_CALLTYPE * OnPlayerUpdatePtr)(EntityId, long long);
 	OnPlayerUpdatePtr onPlayerUpdate = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePlayerEvent),
 		"OnPlayerUpdate",
 		(void**)&onPlayerUpdate);
 	assert(rc == 0);
-	return onPlayerUpdate(UnmanagedEntityId(player), now.time_since_epoch().count());
+	return onPlayerUpdate(EntityId(player), now.time_since_epoch().count());
 }
 
 void NetHost::invokeOnPlayerGiveDamageActor(IPlayer& player, IActor& actor, float amount, unsigned weapon, BodyPart part)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerGiveDamageActorPtr)(UnmanagedEntityId, UnmanagedEntityId, float, unsigned, BodyPart);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerGiveDamageActorPtr)(EntityId, EntityId, float, unsigned, BodyPart);
 	OnPlayerGiveDamageActorPtr onPlayerGiveDamageActor = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeActorEvent),
 		"OnPlayerGiveDamageActor",
 		(void**)&onPlayerGiveDamageActor);
 	assert(rc == 0);
-	onPlayerGiveDamageActor(UnmanagedEntityId(player), UnmanagedEntityId(actor), amount, weapon, part);
+	onPlayerGiveDamageActor(EntityId(player), EntityId(actor), amount, weapon, part);
 }
 
 void NetHost::invokeOnActorStreamOut(IActor& actor, IPlayer& forPlayer)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorStreamOutPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorStreamOutPtr)(EntityId, EntityId);
 	OnActorStreamOutPtr onActorStreamOut = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeActorEvent),
 		"OnActorStreamOut",
 		(void**)&onActorStreamOut);
 	assert(rc == 0);
-	onActorStreamOut(UnmanagedEntityId(actor), UnmanagedEntityId(forPlayer));
+	onActorStreamOut(EntityId(actor), EntityId(forPlayer));
 }
 
 void NetHost::invokeOnActorStreamIn(IActor& actor, IPlayer& forPlayer)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorStreamInPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorStreamInPtr)(EntityId, EntityId);
 	OnActorStreamInPtr onActorStreamIn = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeActorEvent),
 		"OnActorStreamIn",
 		(void**)&onActorStreamIn);
 	assert(rc == 0);
-	onActorStreamIn(UnmanagedEntityId(actor), UnmanagedEntityId(forPlayer));
+	onActorStreamIn(EntityId(actor), EntityId(forPlayer));
 }
 
 void NetHost::invokeOnPlayerEnterCheckpoint(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterCheckpointPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterCheckpointPtr)(EntityId);
 	OnPlayerEnterCheckpointPtr onPlayerEnterCheckpoint = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeCheckpointEvent),
 		"OnPlayerEnterCheckpoint",
 		(void**)&onPlayerEnterCheckpoint);
 	assert(rc == 0);
-	onPlayerEnterCheckpoint(UnmanagedEntityId(player));
+	onPlayerEnterCheckpoint(EntityId(player));
 }
 
 void NetHost::invokeOnPlayerLeaveCheckpoint(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerLeaveCheckpointPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerLeaveCheckpointPtr)(EntityId);
 	OnPlayerLeaveCheckpointPtr onPlayerLeaveCheckpoint = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeCheckpointEvent),
 		"OnPlayerLeaveCheckpoint",
 		(void**)&onPlayerLeaveCheckpoint);
 	assert(rc == 0);
-	onPlayerLeaveCheckpoint(UnmanagedEntityId(player));
+	onPlayerLeaveCheckpoint(EntityId(player));
 }
 
 void NetHost::invokeOnPlayerEnterRaceCheckpoint(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterRaceCheckpointPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterRaceCheckpointPtr)(EntityId);
 	OnPlayerEnterRaceCheckpointPtr onPlayerEnterRaceCheckpoint = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeCheckpointEvent),
 		"OnPlayerEnterRaceCheckpoint",
 		(void**)&onPlayerEnterRaceCheckpoint);
 	assert(rc == 0);
-	onPlayerEnterRaceCheckpoint(UnmanagedEntityId(player));
+	onPlayerEnterRaceCheckpoint(EntityId(player));
 }
 
 void NetHost::invokeOnPlayerLeaveRaceCheckpoint(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerLeaveRaceCheckpointPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerLeaveRaceCheckpointPtr)(EntityId);
 	OnPlayerLeaveRaceCheckpointPtr onPlayerLeaveRaceCheckpoint = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeCheckpointEvent),
 		"OnPlayerLeaveRaceCheckpoint",
 		(void**)&onPlayerLeaveRaceCheckpoint);
 	assert(rc == 0);
-	onPlayerLeaveRaceCheckpoint(UnmanagedEntityId(player));
+	onPlayerLeaveRaceCheckpoint(EntityId(player));
 }
 
 bool NetHost::invokeOnPlayerRequestClass(IPlayer& player, unsigned int classId)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerRequestClassPtr)(UnmanagedEntityId, unsigned int);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerRequestClassPtr)(EntityId, unsigned int);
 	OnPlayerRequestClassPtr onPlayerRequestClass = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeClassEvent),
 		"OnPlayerRequestClass",
 		(void**)&onPlayerRequestClass);
 	assert(rc == 0);
-	return onPlayerRequestClass(UnmanagedEntityId(player), classId);
+	return onPlayerRequestClass(EntityId(player), classId);
 }
 
 bool NetHost::invokeOnConsoleText(StringView command, StringView parameters, const ConsoleCommandSenderData& sender)
@@ -667,14 +667,14 @@ bool NetHost::invokeOnConsoleText(StringView command, StringView parameters, con
 
 void NetHost::invokeOnRconLoginAttempt(IPlayer& player, StringView password, bool success)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnRconLoginAttemptPtr)(UnmanagedEntityId, const char*, bool);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnRconLoginAttemptPtr)(EntityId, const char*, bool);
 	OnRconLoginAttemptPtr onRconLoginAttempt = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeConsoleEvent),
 		"OnRconLoginAttempt",
 		(void**)&onRconLoginAttempt);
 	assert(rc == 0);
-	onRconLoginAttempt(UnmanagedEntityId(player), password.data(), success);
+	onRconLoginAttempt(EntityId(player), password.data(), success);
 }
 
 void NetHost::invokeOnConsoleCommandListRequest(FlatHashSet<StringView>& commands)
@@ -691,602 +691,602 @@ void NetHost::invokeOnConsoleCommandListRequest(FlatHashSet<StringView>& command
 
 void NetHost::invokeOnPlayerFinishedDownloading(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerFinishedDownloadingPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerFinishedDownloadingPtr)(EntityId);
 	OnPlayerFinishedDownloadingPtr onPlayerFinishedDownloading = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeCustomModelEvent),
 		"OnPlayerFinishedDownloading",
 		(void**)&onPlayerFinishedDownloading);
 	assert(rc == 0);
-	onPlayerFinishedDownloading(UnmanagedEntityId(player));
+	onPlayerFinishedDownloading(EntityId(player));
 }
 
 bool NetHost::invokeOnPlayerRequestDownload(IPlayer& player, ModelDownloadType type, uint32_t checksum)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerRequestDownloadPtr)(UnmanagedEntityId, ModelDownloadType, uint32_t);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerRequestDownloadPtr)(EntityId, ModelDownloadType, uint32_t);
 	OnPlayerRequestDownloadPtr onPlayerRequestDownload = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeCustomModelEvent),
 		"OnPlayerRequestDownload",
 		(void**)&onPlayerRequestDownload);
 	assert(rc == 0);
-	return onPlayerRequestDownload(UnmanagedEntityId(player), type, checksum);
+	return onPlayerRequestDownload(EntityId(player), type, checksum);
 }
 
 void NetHost::invokeOnDialogResponse(IPlayer& player, int dialogId, DialogResponse response, int listItem, StringView inputText)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnDialogResponsePtr)(UnmanagedEntityId, int, DialogResponse, int, const char*);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnDialogResponsePtr)(EntityId, int, DialogResponse, int, const char*);
 	OnDialogResponsePtr onDialogResponse = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeDialogEvent),
 		"OnDialogResponse",
 		(void**)&onDialogResponse);
 	assert(rc == 0);
-	onDialogResponse(UnmanagedEntityId(player), dialogId, response, listItem, inputText.data());
+	onDialogResponse(EntityId(player), dialogId, response, listItem, inputText.data());
 }
 
 void NetHost::invokeOnPlayerEnterGangZone(IPlayer& player, IGangZone& zone)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterGangZonePtr)(UnmanagedEntityId, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterGangZonePtr)(EntityId, int);
 	OnPlayerEnterGangZonePtr onPlayerEnterGangZone = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeGangZoneEvent),
 		"OnPlayerEnterGangZone",
 		(void**)&onPlayerEnterGangZone);
 	assert(rc == 0);
-	onPlayerEnterGangZone(UnmanagedEntityId(player), zone.getID());
+	onPlayerEnterGangZone(EntityId(player), zone.getID());
 }
 
 void NetHost::invokeOnPlayerLeaveGangZone(IPlayer& player, IGangZone& zone)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerLeaveGangZonePtr)(UnmanagedEntityId, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerLeaveGangZonePtr)(EntityId, int);
 	OnPlayerLeaveGangZonePtr onPlayerLeaveGangZone = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeGangZoneEvent),
 		"OnPlayerLeaveGangZone",
 		(void**)&onPlayerLeaveGangZone);
 	assert(rc == 0);
-	onPlayerLeaveGangZone(UnmanagedEntityId(player), zone.getID());
+	onPlayerLeaveGangZone(EntityId(player), zone.getID());
 }
 
 void NetHost::invokeOnPlayerClickGangZone(IPlayer& player, IGangZone& zone)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickGangZonePtr)(UnmanagedEntityId, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickGangZonePtr)(EntityId, int);
 	OnPlayerClickGangZonePtr onPlayerClickGangZone = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeGangZoneEvent),
 		"OnPlayerClickGangZone",
 		(void**)&onPlayerClickGangZone);
 	assert(rc == 0);
-	onPlayerClickGangZone(UnmanagedEntityId(player), zone.getID());
+	onPlayerClickGangZone(EntityId(player), zone.getID());
 }
 
 void NetHost::invokeOnPlayerSelectedMenuRow(IPlayer& player, MenuRow row)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerSelectedMenuRowPtr)(UnmanagedEntityId, MenuRow);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerSelectedMenuRowPtr)(EntityId, MenuRow);
 	OnPlayerSelectedMenuRowPtr onPlayerSelectedMenuRow = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeMenuEvent),
 		"OnPlayerSelectedMenuRow",
 		(void**)&onPlayerSelectedMenuRow);
 	assert(rc == 0);
-	onPlayerSelectedMenuRow(UnmanagedEntityId(player), row);
+	onPlayerSelectedMenuRow(EntityId(player), row);
 }
 
 void NetHost::invokeOnPlayerExitedMenu(IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerExitedMenuPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerExitedMenuPtr)(EntityId);
 	OnPlayerExitedMenuPtr onPlayerExitedMenu = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeMenuEvent),
 		"OnPlayerExitedMenu",
 		(void**)&onPlayerExitedMenu);
 	assert(rc == 0);
-	onPlayerExitedMenu(UnmanagedEntityId(player));
+	onPlayerExitedMenu(EntityId(player));
 }
 
 void NetHost::invokeOnObjectMoved(IObject& object)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectMovedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectMovedPtr)(EntityId);
 	OnObjectMovedPtr onObjectMoved = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeObjectEvent),
 		"OnObjectMoved",
 		(void**)&onObjectMoved);
 	assert(rc == 0);
-	onObjectMoved(UnmanagedEntityId(object));
+	onObjectMoved(EntityId(object));
 }
 
 void NetHost::invokeOnPlayerObjectMoved(IPlayer& player, IPlayerObject& object)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectMovedPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectMovedPtr)(EntityId, EntityId);
 	OnPlayerObjectMovedPtr onPlayerObjectMoved = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeObjectEvent),
 		"OnPlayerObjectMoved",
 		(void**)&onPlayerObjectMoved);
 	assert(rc == 0);
-	onPlayerObjectMoved(UnmanagedEntityId(player), UnmanagedEntityId(object));
+	onPlayerObjectMoved(EntityId(player), EntityId(object));
 }
 
 void NetHost::invokeOnObjectSelected(IPlayer& player, IObject& object, int model, Vector3 position)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectSelectedPtr)(UnmanagedEntityId, UnmanagedEntityId, int, Vector3);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectSelectedPtr)(EntityId, EntityId, int, Vector3);
 	OnObjectSelectedPtr onObjectSelected = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeObjectEvent),
 		"OnObjectSelected",
 		(void**)&onObjectSelected);
 	assert(rc == 0);
-	onObjectSelected(UnmanagedEntityId(player), UnmanagedEntityId(object), model, position);
+	onObjectSelected(EntityId(player), EntityId(object), model, position);
 }
 
 void NetHost::invokeOnPlayerObjectSelected(IPlayer& player, IPlayerObject& object, int model, Vector3 position)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectSelectedPtr)(UnmanagedEntityId, UnmanagedEntityId, int, Vector3);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectSelectedPtr)(EntityId, EntityId, int, Vector3);
 	OnPlayerObjectSelectedPtr onPlayerObjectSelected = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeObjectEvent),
 		"OnPlayerObjectSelected",
 		(void**)&onPlayerObjectSelected);
 	assert(rc == 0);
-	onPlayerObjectSelected(UnmanagedEntityId(player), UnmanagedEntityId(object), model, position);
+	onPlayerObjectSelected(EntityId(player), EntityId(object), model, position);
 }
 
 void NetHost::invokeOnObjectEdited(IPlayer& player, IObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectEditedPtr)(UnmanagedEntityId, UnmanagedEntityId, ObjectEditResponse, Vector3, Vector3);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectEditedPtr)(EntityId, EntityId, ObjectEditResponse, Vector3, Vector3);
 	OnObjectEditedPtr onObjectEdited = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeObjectEvent),
 		"OnObjectEdited",
 		(void**)&onObjectEdited);
 	assert(rc == 0);
-	onObjectEdited(UnmanagedEntityId(player), UnmanagedEntityId(object), response, offset, rotation);
+	onObjectEdited(EntityId(player), EntityId(object), response, offset, rotation);
 }
 
 void NetHost::invokeOnPlayerObjectEdited(IPlayer& player, IPlayerObject& object, ObjectEditResponse response, Vector3 offset, Vector3 rotation)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectEditedPtr)(UnmanagedEntityId, UnmanagedEntityId, ObjectEditResponse, Vector3, Vector3);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectEditedPtr)(EntityId, EntityId, ObjectEditResponse, Vector3, Vector3);
 	OnPlayerObjectEditedPtr onPlayerObjectEdited = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeObjectEvent),
 		"OnPlayerObjectEdited",
 		(void**)&onPlayerObjectEdited);
 	assert(rc == 0);
-	onPlayerObjectEdited(UnmanagedEntityId(player), UnmanagedEntityId(object), response, offset, rotation);
+	onPlayerObjectEdited(EntityId(player), EntityId(object), response, offset, rotation);
 }
 
 void NetHost::invokeOnPlayerAttachedObjectEdited(IPlayer& player, int index, bool saved, const ObjectAttachmentSlotData& data)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerAttachedObjectEditedPtr)(UnmanagedEntityId, int, bool, const ObjectAttachmentSlotData*);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerAttachedObjectEditedPtr)(EntityId, int, bool, const ObjectAttachmentSlotData*);
 	OnPlayerAttachedObjectEditedPtr onPlayerAttachedObjectEdited = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeObjectEvent),
 		"OnPlayerAttachedObjectEdited",
 		(void**)&onPlayerAttachedObjectEdited);
 	assert(rc == 0);
-	onPlayerAttachedObjectEdited(UnmanagedEntityId(player), index, saved, &data);
+	onPlayerAttachedObjectEdited(EntityId(player), index, saved, &data);
 }
 
 void NetHost::invokeOnPlayerPickUpPickup(IPlayer& player, IPickup& pickup)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerPickupPickupPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerPickupPickupPtr)(EntityId, EntityId);
 	OnPlayerPickupPickupPtr onPlayerPickupPickup = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePickupEvent),
 		"OnPlayerPickupPickup",
 		(void**)&onPlayerPickupPickup);
 	assert(rc == 0);
-	onPlayerPickupPickup(UnmanagedEntityId(player), UnmanagedEntityId(pickup));
+	onPlayerPickupPickup(EntityId(player), EntityId(pickup));
 }
 
 void NetHost::invokeOnPlayerClickTextDraw(IPlayer& player, ITextDraw& td)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickTextDrawPtr)(UnmanagedEntityId, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickTextDrawPtr)(EntityId, int);
 	OnPlayerClickTextDrawPtr onPlayerClickTextDraw = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeTextDrawEvent),
 		"OnPlayerClickTextDraw",
 		(void**)&onPlayerClickTextDraw);
 	assert(rc == 0);
-	onPlayerClickTextDraw(UnmanagedEntityId(player), td.getID());
+	onPlayerClickTextDraw(EntityId(player), td.getID());
 }
 
 void NetHost::invokeOnPlayerClickPlayerTextDraw(IPlayer& player, IPlayerTextDraw& td)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickPlayerTextDrawPtr)(UnmanagedEntityId, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerClickPlayerTextDrawPtr)(EntityId, int);
 	OnPlayerClickPlayerTextDrawPtr onPlayerClickPlayerTextDraw = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeTextDrawEvent),
 		"OnPlayerClickPlayerTextDraw",
 		(void**)&onPlayerClickPlayerTextDraw);
 	assert(rc == 0);
-	onPlayerClickPlayerTextDraw(UnmanagedEntityId(player), td.getID());
+	onPlayerClickPlayerTextDraw(EntityId(player), td.getID());
 }
 
 bool NetHost::invokeOnPlayerCancelTextDrawSelection(IPlayer& player)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerCancelTextDrawSelectionPtr)(UnmanagedEntityId);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerCancelTextDrawSelectionPtr)(EntityId);
 	OnPlayerCancelTextDrawSelectionPtr onPlayerCancelTextDrawSelection = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeTextDrawEvent),
 		"OnPlayerCancelTextDrawSelection",
 		(void**)&onPlayerCancelTextDrawSelection);
 	assert(rc == 0);
-	return onPlayerCancelTextDrawSelection(UnmanagedEntityId(player));
+	return onPlayerCancelTextDrawSelection(EntityId(player));
 }
 
 bool NetHost::invokeOnPlayerCancelPlayerTextDrawSelection(IPlayer& player)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerCancelPlayerTextDrawSelectionPtr)(UnmanagedEntityId);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnPlayerCancelPlayerTextDrawSelectionPtr)(EntityId);
 	OnPlayerCancelPlayerTextDrawSelectionPtr onPlayerCancelPlayerTextDrawSelection = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeTextDrawEvent),
 		"OnPlayerCancelPlayerTextDrawSelection",
 		(void**)&onPlayerCancelPlayerTextDrawSelection);
 	assert(rc == 0);
-	return onPlayerCancelPlayerTextDrawSelection(UnmanagedEntityId(player));
+	return onPlayerCancelPlayerTextDrawSelection(EntityId(player));
 }
 
 void NetHost::invokeOnVehicleStreamIn(IVehicle& vehicle, IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleStreamInPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleStreamInPtr)(EntityId, EntityId);
 	OnVehicleStreamInPtr onVehicleStreamIn = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleStreamIn",
 		(void**)&onVehicleStreamIn);
 	assert(rc == 0);
-	onVehicleStreamIn(UnmanagedEntityId(vehicle), UnmanagedEntityId(player));
+	onVehicleStreamIn(EntityId(vehicle), EntityId(player));
 }
 
 void NetHost::invokeOnVehicleStreamOut(IVehicle& vehicle, IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleStreamOutPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleStreamOutPtr)(EntityId, EntityId);
 	OnVehicleStreamOutPtr onVehicleStreamOut = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleStreamOut",
 		(void**)&onVehicleStreamOut);
 	assert(rc == 0);
-	onVehicleStreamOut(UnmanagedEntityId(vehicle), UnmanagedEntityId(player));
+	onVehicleStreamOut(EntityId(vehicle), EntityId(player));
 }
 
 void NetHost::invokeOnVehicleDeath(IVehicle& vehicle, IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleDeathPtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleDeathPtr)(EntityId, EntityId);
 	OnVehicleDeathPtr onVehicleDeath = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleDeath",
 		(void**)&onVehicleDeath);
 	assert(rc == 0);
-	onVehicleDeath(UnmanagedEntityId(vehicle), UnmanagedEntityId(player));
+	onVehicleDeath(EntityId(vehicle), EntityId(player));
 }
 
 void NetHost::invokeOnPlayerEnterVehicle(IPlayer& player, IVehicle& vehicle, bool passenger)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterVehiclePtr)(UnmanagedEntityId, UnmanagedEntityId, bool);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerEnterVehiclePtr)(EntityId, EntityId, bool);
 	OnPlayerEnterVehiclePtr onPlayerEnterVehicle = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnPlayerEnterVehicle",
 		(void**)&onPlayerEnterVehicle);
 	assert(rc == 0);
-	onPlayerEnterVehicle(UnmanagedEntityId(vehicle), UnmanagedEntityId(player), passenger);
+	onPlayerEnterVehicle(EntityId(vehicle), EntityId(player), passenger);
 }
 
 void NetHost::invokeOnPlayerExitVehicle(IPlayer& player, IVehicle& vehicle)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerExitVehiclePtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerExitVehiclePtr)(EntityId, EntityId);
 	OnPlayerExitVehiclePtr onPlayerExitVehicle = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnPlayerExitVehicle",
 		(void**)&onPlayerExitVehicle);
 	assert(rc == 0);
-	onPlayerExitVehicle(UnmanagedEntityId(vehicle), UnmanagedEntityId(player));
+	onPlayerExitVehicle(EntityId(vehicle), EntityId(player));
 }
 
 void NetHost::invokeOnVehicleDamageStatusUpdate(IVehicle& vehicle, IPlayer& player)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleDamageStatusUpdatePtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleDamageStatusUpdatePtr)(EntityId, EntityId);
 	OnVehicleDamageStatusUpdatePtr onVehicleDamageStatusUpdate = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleDamageStatusUpdate",
 		(void**)&onVehicleDamageStatusUpdate);
 	assert(rc == 0);
-	onVehicleDamageStatusUpdate(UnmanagedEntityId(vehicle), UnmanagedEntityId(player));
+	onVehicleDamageStatusUpdate(EntityId(vehicle), EntityId(player));
 }
 
 bool NetHost::invokeOnVehiclePaintJob(IPlayer& player, IVehicle& vehicle, int paintJob)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehiclePaintJobPtr)(UnmanagedEntityId, UnmanagedEntityId, int);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehiclePaintJobPtr)(EntityId, EntityId, int);
 	OnVehiclePaintJobPtr onVehiclePaintJob = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehiclePaintJob",
 		(void**)&onVehiclePaintJob);
 	assert(rc == 0);
-	return onVehiclePaintJob(UnmanagedEntityId(vehicle), UnmanagedEntityId(player), paintJob);
+	return onVehiclePaintJob(EntityId(vehicle), EntityId(player), paintJob);
 }
 
 bool NetHost::invokeOnVehicleMod(IPlayer& player, IVehicle& vehicle, int component)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehicleModPtr)(UnmanagedEntityId, UnmanagedEntityId, int);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehicleModPtr)(EntityId, EntityId, int);
 	OnVehicleModPtr onVehicleMod = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleMod",
 		(void**)&onVehicleMod);
 	assert(rc == 0);
-	return onVehicleMod(UnmanagedEntityId(vehicle), UnmanagedEntityId(player), component);
+	return onVehicleMod(EntityId(vehicle), EntityId(player), component);
 }
 
 bool NetHost::invokeOnVehicleRespray(IPlayer& player, IVehicle& vehicle, int colour1, int colour2)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehicleResprayPtr)(UnmanagedEntityId, UnmanagedEntityId, int, int);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehicleResprayPtr)(EntityId, EntityId, int, int);
 	OnVehicleResprayPtr onVehicleRespray = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleRespray",
 		(void**)&onVehicleRespray);
 	assert(rc == 0);
-	return onVehicleRespray(UnmanagedEntityId(vehicle), UnmanagedEntityId(player), colour1, colour2);
+	return onVehicleRespray(EntityId(vehicle), EntityId(player), colour1, colour2);
 }
 
 void NetHost::invokeOnEnterExitModShop(IPlayer& player, bool enterexit, int interiorID)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnEnterExitModShopPtr)(UnmanagedEntityId, bool, int);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnEnterExitModShopPtr)(EntityId, bool, int);
 	OnEnterExitModShopPtr onEnterExitModShop = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnEnterExitModShop",
 		(void**)&onEnterExitModShop);
 	assert(rc == 0);
-	onEnterExitModShop(UnmanagedEntityId(player), enterexit, interiorID);
+	onEnterExitModShop(EntityId(player), enterexit, interiorID);
 }
 
 void NetHost::invokeOnVehicleSpawn(IVehicle& vehicle)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleSpawnPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleSpawnPtr)(EntityId);
 	OnVehicleSpawnPtr onVehicleSpawn = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleSpawn",
 		(void**)&onVehicleSpawn);
 	assert(rc == 0);
-	return onVehicleSpawn(UnmanagedEntityId(vehicle));
+	return onVehicleSpawn(EntityId(vehicle));
 }
 
 bool NetHost::invokeOnUnoccupiedVehicleUpdate(IVehicle& vehicle, IPlayer& player, UnoccupiedVehicleUpdate const updateData)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnUnoccupiedVehicleUpdatePtr)(UnmanagedEntityId, UnmanagedEntityId, UnoccupiedVehicleUpdate);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnUnoccupiedVehicleUpdatePtr)(EntityId, EntityId, UnoccupiedVehicleUpdate);
 	OnUnoccupiedVehicleUpdatePtr onUnoccupiedVehicleUpdate = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnUnoccupiedVehicleUpdate",
 		(void**)&onUnoccupiedVehicleUpdate);
 	assert(rc == 0);
-	return onUnoccupiedVehicleUpdate(UnmanagedEntityId(vehicle), UnmanagedEntityId(player), updateData);
+	return onUnoccupiedVehicleUpdate(EntityId(vehicle), EntityId(player), updateData);
 }
 
 bool NetHost::invokeOnTrailerUpdate(IPlayer& player, IVehicle& trailer)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnTrailerUpdatePtr)(UnmanagedEntityId, UnmanagedEntityId);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnTrailerUpdatePtr)(EntityId, EntityId);
 	OnTrailerUpdatePtr onTrailerUpdate = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnTrailerUpdate",
 		(void**)&onTrailerUpdate);
 	assert(rc == 0);
-	return onTrailerUpdate(UnmanagedEntityId(player), UnmanagedEntityId(trailer));
+	return onTrailerUpdate(EntityId(player), EntityId(trailer));
 }
 
 bool NetHost::invokeOnVehicleSirenStateChange(IPlayer& player, IVehicle& vehicle, uint8_t sirenState)
 {
-	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehicleSirenStateChangePtr)(UnmanagedEntityId, UnmanagedEntityId, uint8_t);
+	typedef int(CORECLR_DELEGATE_CALLTYPE * OnVehicleSirenStateChangePtr)(EntityId, EntityId, uint8_t);
 	OnVehicleSirenStateChangePtr onVehicleSirenStateChange = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativeVehicleEvent),
 		"OnVehicleSirenStateChange",
 		(void**)&onVehicleSirenStateChange);
 	assert(rc == 0);
-	return onVehicleSirenStateChange(UnmanagedEntityId(player), UnmanagedEntityId(vehicle), sirenState);
+	return onVehicleSirenStateChange(EntityId(player), EntityId(vehicle), sirenState);
 }
 
 void NetHost::invokeOnPoolEntryCreated(IActor& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorCreatedPtr)(EntityId);
 	OnActorCreatedPtr onActorCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnActorCreated",
 		(void**)&onActorCreated);
 	assert(rc == 0);
-	return onActorCreated(UnmanagedEntityId(entry));
+	return onActorCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(IActor& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnActorDestroyedPtr)(EntityId);
 	OnActorDestroyedPtr onActorDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnActorDestroyed",
 		(void**)&onActorDestroyed);
 	assert(rc == 0);
-	return onActorDestroyed(UnmanagedEntityId(entry));
+	return onActorDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(IPickup& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPickupCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPickupCreatedPtr)(EntityId);
 	OnPickupCreatedPtr onPickupCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPickupCreated",
 		(void**)&onPickupCreated);
 	assert(rc == 0);
-	return onPickupCreated(UnmanagedEntityId(entry));
+	return onPickupCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(IPickup& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPickupDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPickupDestroyedPtr)(EntityId);
 	OnPickupDestroyedPtr onPickupDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPickupDestroyed",
 		(void**)&onPickupDestroyed);
 	assert(rc == 0);
-	return onPickupDestroyed(UnmanagedEntityId(entry));
+	return onPickupDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(IPlayer& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerCreatedPtr)(EntityId);
 	OnPlayerCreatedPtr onPlayerCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPlayerCreated",
 		(void**)&onPlayerCreated);
 	assert(rc == 0);
-	return onPlayerCreated(UnmanagedEntityId(entry));
+	return onPlayerCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(IPlayer& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerDestroyedPtr)(EntityId);
 	OnPlayerDestroyedPtr onPlayerDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPlayerDestroyed",
 		(void**)&onPlayerDestroyed);
 	assert(rc == 0);
-	return onPlayerDestroyed(UnmanagedEntityId(entry));
+	return onPlayerDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(IVehicle& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleCreatedPtr)(EntityId);
 	OnVehicleCreatedPtr onVehicleCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnVehicleCreated",
 		(void**)&onVehicleCreated);
 	assert(rc == 0);
-	return onVehicleCreated(UnmanagedEntityId(entry));
+	return onVehicleCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(IVehicle& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnVehicleDestroyedPtr)(EntityId);
 	OnVehicleDestroyedPtr onVehicleDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnVehicleDestroyed",
 		(void**)&onVehicleDestroyed);
 	assert(rc == 0);
-	return onVehicleDestroyed(UnmanagedEntityId(entry));
+	return onVehicleDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(IObject& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectCreatedPtr)(EntityId);
 	OnObjectCreatedPtr onObjectCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnObjectCreated",
 		(void**)&onObjectCreated);
 	assert(rc == 0);
-	return onObjectCreated(UnmanagedEntityId(entry));
+	return onObjectCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(IObject& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnObjectDestroyedPtr)(EntityId);
 	OnObjectDestroyedPtr onObjectDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnObjectDestroyed",
 		(void**)&onObjectDestroyed);
 	assert(rc == 0);
-	return onObjectDestroyed(UnmanagedEntityId(entry));
+	return onObjectDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(IPlayerObject& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectCreatedPtr)(EntityId);
 	OnPlayerObjectCreatedPtr onPlayerObjectCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPlayerObjectCreated",
 		(void**)&onPlayerObjectCreated);
 	assert(rc == 0);
-	return onPlayerObjectCreated(UnmanagedEntityId(entry));
+	return onPlayerObjectCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(IPlayerObject& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerObjectDestroyedPtr)(EntityId);
 	OnPlayerObjectDestroyedPtr onPlayerObjectDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPlayerObjectDestroyed",
 		(void**)&onPlayerObjectDestroyed);
 	assert(rc == 0);
-	return onPlayerObjectDestroyed(UnmanagedEntityId(entry));
+	return onPlayerObjectDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(ITextLabel& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnTextLabelCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnTextLabelCreatedPtr)(EntityId);
 	OnTextLabelCreatedPtr onTextLabelCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnTextLabelCreated",
 		(void**)&onTextLabelCreated);
 	assert(rc == 0);
-	return onTextLabelCreated(UnmanagedEntityId(entry));
+	return onTextLabelCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(ITextLabel& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnTextLabelDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnTextLabelDestroyedPtr)(EntityId);
 	OnTextLabelDestroyedPtr onTextLabelDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnTextLabelDestroyed",
 		(void**)&onTextLabelDestroyed);
 	assert(rc == 0);
-	return onTextLabelDestroyed(UnmanagedEntityId(entry));
+	return onTextLabelDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(IPlayerTextLabel& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerTextLabelCreatedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerTextLabelCreatedPtr)(EntityId);
 	OnPlayerTextLabelCreatedPtr onPlayerTextLabelCreated = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPlayerTextLabelCreated",
 		(void**)&onPlayerTextLabelCreated);
 	assert(rc == 0);
-	return onPlayerTextLabelCreated(UnmanagedEntityId(entry));
+	return onPlayerTextLabelCreated(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryDestroyed(IPlayerTextLabel& entry)
 {
-	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerTextLabelDestroyedPtr)(UnmanagedEntityId);
+	typedef void(CORECLR_DELEGATE_CALLTYPE * OnPlayerTextLabelDestroyedPtr)(EntityId);
 	OnPlayerTextLabelDestroyedPtr onPlayerTextLabelDestroyed = nullptr;
 	int rc = getManagedFunctionPointer(
 		CAPI_TYPE_NAME(Events.NativePoolEvent),
 		"OnPlayerTextLabelDestroyed",
 		(void**)&onPlayerTextLabelDestroyed);
 	assert(rc == 0);
-	return onPlayerTextLabelDestroyed(UnmanagedEntityId(entry));
+	return onPlayerTextLabelDestroyed(EntityId(entry));
 }
 
 void NetHost::invokeOnPoolEntryCreated(IClass& entry)

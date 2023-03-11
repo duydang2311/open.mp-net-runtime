@@ -2,16 +2,16 @@
 
 #include "entity.hpp"
 
-struct UnmanagedEntityId
+struct EntityId
 {
 	IEntity* pointer;
 	int id;
-	UnmanagedEntityId(IEntity& entity)
+	EntityId(IEntity& entity)
 		: pointer(&entity)
 		, id(entity.getID())
 	{
 	}
-	UnmanagedEntityId(IEntity* pointer)
+	EntityId(IEntity* pointer)
 		: pointer(pointer)
 		, id(pointer == nullptr ? -1 : pointer->getID())
 	{
