@@ -70,7 +70,7 @@ DLL_EXPORT void Player_SetMapIcon(IEntity* player, int id, Vector3 pos, int type
 DLL_EXPORT void Player_UnsetMapIcon(IEntity* player, int id);
 DLL_EXPORT void Player_UseStuntBonuses(IEntity* player, bool enable);
 DLL_EXPORT void Player_ToggleOtherNameTag(IEntity* player, IEntity* other, bool toggle);
-DLL_EXPORT void Player_SetTime(IEntity* player, Hours hr, Minutes min);
+DLL_EXPORT void Player_SetTime(IEntity* player, int64_t hr, int64_t min);
 DLL_EXPORT void Player_GetTime(const IEntity* player, int64_t* hours, int64_t* minutes);
 DLL_EXPORT void Player_UseClock(IEntity* player, bool enable);
 DLL_EXPORT bool Player_HasClock(const IEntity* player);
@@ -85,7 +85,7 @@ DLL_EXPORT void Player_SetArmour(IEntity* player, float armour);
 DLL_EXPORT float Player_GetArmour(const IEntity* player);
 DLL_EXPORT void Player_SetGravity(IEntity* player, float gravity);
 DLL_EXPORT float Player_GetGravity(const IEntity* player);
-DLL_EXPORT void Player_SetWorldTime(IEntity* player, Hours time);
+DLL_EXPORT void Player_SetWorldTime(IEntity* player, uint64_t time);
 DLL_EXPORT void Player_ApplyAnimation(IEntity* player, const AnimationData& animation, PlayerAnimationSyncType syncType);
 DLL_EXPORT void Player_ClearAnimations(IEntity* player, PlayerAnimationSyncType syncType);
 DLL_EXPORT PlayerAnimationData Player_GetAnimationData(const IEntity* player);

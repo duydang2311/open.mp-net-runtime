@@ -341,9 +341,9 @@ void Player_ToggleOtherNameTag(IEntity* player, IEntity* other, bool toggle)
 	static_cast<IPlayer*>(player)->toggleOtherNameTag(*static_cast<IPlayer*>(other), toggle);
 }
 
-void Player_SetTime(IEntity* player, Hours hr, Minutes min)
+void Player_SetTime(IEntity* player, int64_t hr, int64_t min)
 {
-	static_cast<IPlayer*>(player)->setTime(hr, min);
+	static_cast<IPlayer*>(player)->setTime(Hours(hr), Minutes(min));
 }
 
 void Player_GetTime(const IEntity* player, int64_t* hours, int64_t* minutes)
@@ -418,9 +418,9 @@ float Player_GetGravity(const IEntity* player)
 	return static_cast<const IPlayer*>(player)->getGravity();
 }
 
-void Player_SetWorldTime(IEntity* player, Hours time)
+void Player_SetWorldTime(IEntity* player, uint64_t time)
 {
-	static_cast<IPlayer*>(player)->setWorldTime(time);
+	static_cast<IPlayer*>(player)->setWorldTime(Hours(time));
 }
 
 void Player_ApplyAnimation(IEntity* player, const AnimationData& animation, PlayerAnimationSyncType syncType)
