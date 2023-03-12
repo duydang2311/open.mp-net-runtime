@@ -1,5 +1,3 @@
-#pragma once
-
 #include "src/c-api/textdraws.hpp"
 #include "src/component.hpp"
 
@@ -53,14 +51,14 @@ TextDrawAlignmentTypes TextDrawBase_GetAlignment(const ITextDrawBase* td)
 	return td->getAlignment();
 }
 
-void TextDrawBase_SetColour(ITextDrawBase* td, Colour colour)
+void TextDrawBase_SetColour(ITextDrawBase* td, uint32_t argb)
 {
-	td->setColour(colour);
+	td->setColour(Colour::FromARGB(argb));
 }
 
-Colour TextDrawBase_GetLetterColour(const ITextDrawBase* td)
+uint32_t TextDrawBase_GetLetterColour(const ITextDrawBase* td)
 {
-	return td->getLetterColour();
+	return td->getLetterColour().ARGB();
 }
 
 void TextDrawBase_UseBox(ITextDrawBase* td, bool use)
@@ -73,14 +71,14 @@ bool TextDrawBase_HasBox(ITextDrawBase* td)
 	return td->hasBox();
 }
 
-void TextDrawBase_SetBoxColour(ITextDrawBase* td, Colour colour)
+void TextDrawBase_SetBoxColour(ITextDrawBase* td, uint32_t argb)
 {
-	td->setBoxColour(colour);
+	td->setBoxColour(Colour::FromARGB(argb));
 }
 
-Colour TextDrawBase_GetBoxColour(const ITextDrawBase* td)
+uint32_t TextDrawBase_GetBoxColour(const ITextDrawBase* td)
 {
-	return td->getBoxColour();
+	return td->getBoxColour().ARGB();
 }
 
 void TextDrawBase_SetShadow(ITextDrawBase* td, int shadow)
@@ -103,14 +101,14 @@ int TextDrawBase_GetOutline(const ITextDrawBase* td)
 	return td->getOutline();
 }
 
-void TextDrawBase_SetBackgroundColour(ITextDrawBase* td, Colour colour)
+void TextDrawBase_SetBackgroundColour(ITextDrawBase* td, uint32_t argb)
 {
-	td->setBackgroundColour(colour);
+	td->setBackgroundColour(Colour::FromARGB(argb));
 }
 
-Colour TextDrawBase_GetBackgroundColour(const ITextDrawBase* td)
+uint32_t TextDrawBase_GetBackgroundColour(const ITextDrawBase* td)
 {
-	return td->getBackgroundColour();
+	return td->getBackgroundColour().ARGB();
 }
 
 void TextDrawBase_SetStyle(ITextDrawBase* td, TextDrawStyle style)
@@ -200,14 +198,14 @@ ITextDrawBase* TextDraw_CreatePreviewModel(Vector2 position, int model)
 	return MainComponent::getInstance()->getTextDrawComponent()->create(position, model);
 }
 
-void Player_BeginSelection(IEntity* player, Colour highlight)
+void Player_BeginSelection(IEntity* player, uint32_t argb)
 {
-	queryExtension<IPlayerTextDrawData>(static_cast<IPlayer*>(player))->beginSelection(highlight);
+	queryExtension<IPlayerTextDrawData>(static_cast<IPlayer*>(player))->beginSelection(Colour::FromARGB(argb));
 }
 
-bool Player_IsSelecting(const IEntity* player)
+bool Player_IsSelecting(IEntity* player)
 {
-	return queryExtension<IPlayerTextDrawData>(static_cast<const IPlayer*>(player))->isSelecting();
+	return queryExtension<IPlayerTextDrawData>(static_cast<IPlayer*>(player))->isSelecting();
 }
 
 void Player_EndSelection(IEntity* player)
