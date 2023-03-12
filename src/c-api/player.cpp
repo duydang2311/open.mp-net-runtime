@@ -536,8 +536,8 @@ const char* Player_GetGameText(IEntity* player, int style, int64_t* timeMs, int6
 	StringView message_;
 	Milliseconds time_, remaining_;
 	auto ret = static_cast<IPlayer*>(player)->getGameText(style, message_, time_, remaining_);
-	*time = time_.count();
-	*remaining = remaining_.count();
+	*timeMs = time_.count();
+	*remainingMs = remaining_.count();
 	return message_.data();
 }
 
