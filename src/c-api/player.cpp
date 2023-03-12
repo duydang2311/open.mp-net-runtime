@@ -531,15 +531,14 @@ bool Player_HasGameText(IEntity* player, int style)
 	return static_cast<IPlayer*>(player)->hasGameText(style);
 }
 
-bool Player_GetGameText(IEntity* player, int style, char* message, std::size_t size, int64_t* time, int64_t* remaining)
+const char* Player_GetGameText(IEntity* player, int style, int64_t* timeMs, int64_t* remainingMs)
 {
 	StringView message_;
 	Milliseconds time_, remaining_;
 	auto ret = static_cast<IPlayer*>(player)->getGameText(style, message_, time_, remaining_);
-	memcpy(message, message_.data(), size);
 	*time = time_.count();
 	*remaining = remaining_.count();
-	return ret;
+	return message_.data();
 }
 
 void Player_SetWeather(IEntity* player, int weatherID)

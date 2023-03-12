@@ -106,7 +106,7 @@ DLL_EXPORT void Player_SendCommand(IEntity* player, const char* message);
 DLL_EXPORT void Player_SendGameText(IEntity* player, const char* message, int64_t timeMs, int style);
 DLL_EXPORT void Player_HideGameText(IEntity* player, int style);
 DLL_EXPORT bool Player_HasGameText(const IEntity* player, int style);
-DLL_EXPORT bool Player_GetGameText(const IEntity* player, int style, char* message, std::size_t size, int64_t* time, int64_t* remaining); // both are milliseconds
+DLL_EXPORT const char* Player_GetGameText(const IEntity* player, int style, int64_t* timeMs, int64_t* remainingMs);
 DLL_EXPORT void Player_SetWeather(IEntity* player, int weatherID);
 DLL_EXPORT int Player_GetWeather(const IEntity* player);
 DLL_EXPORT void Player_SetWorldBounds(IEntity* player, Vector4 coords);
