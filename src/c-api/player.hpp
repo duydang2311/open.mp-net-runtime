@@ -93,7 +93,7 @@ DLL_EXPORT PlayerSurfingData Player_GetSurfingData(const IEntity* player);
 DLL_EXPORT void Player_StreamInForPlayer(IEntity* player, const IEntity* other);
 DLL_EXPORT bool Player_IsStreamedInForPlayer(const IEntity* player, const IEntity* other);
 DLL_EXPORT void Player_StreamOutForPlayer(IEntity* player, const IEntity* other);
-DLL_EXPORT std::size_t Player_GetStreamedPlayers(const IEntity* player, IEntity* streamPlayers);
+DLL_EXPORT std::size_t Player_GetStreamedPlayers(const IEntity* player, IEntity*** streamedPlayers);
 DLL_EXPORT PlayerState Player_GetState(const IEntity* player);
 DLL_EXPORT void Player_SetTeam(IEntity* player, int team);
 DLL_EXPORT int Player_GetTeam(const IEntity* player);

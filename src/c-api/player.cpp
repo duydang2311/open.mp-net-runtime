@@ -458,15 +458,15 @@ void Player_StreamOutForPlayer(IEntity* player, IEntity* other)
 	static_cast<IPlayer*>(player)->streamOutForPlayer(*static_cast<IPlayer*>(other));
 }
 
-std::size_t Player_GetStreamedPlayers(IEntity* player, IPlayer** streamPlayers)
+std::size_t Player_GetStreamedPlayers(IEntity* player, IEntity*** streamedPlayers)
 {
 	auto set = static_cast<IPlayer*>(player)->streamedForPlayers();
 	auto size = set.size();
 	std::size_t idx = 0;
-	streamPlayers = new IPlayer*[size];
+	*streamedPlayers = new IEntity*[size];
 	for (auto& i : set)
 	{
-		*(streamPlayers + idx++) = i;
+		*(*streamedPlayers + idx++) = static_cast<IEntity*>(i);
 	}
 	return size;
 }
