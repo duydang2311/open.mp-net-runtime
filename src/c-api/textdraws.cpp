@@ -188,7 +188,7 @@ void TextDrawBase_Restream(ITextDrawBase* td)
 	td->restream();
 }
 
-ITextDrawBase* TextDraw_CreateText(Vector2 position, StringView text)
+ITextDrawBase* TextDraw_CreateText(Vector2 position, const char* text)
 {
 	return MainComponent::getInstance()->getTextDrawComponent()->create(position, text);
 }

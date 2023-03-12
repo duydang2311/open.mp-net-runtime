@@ -41,7 +41,7 @@ DLL_EXPORT void TextDrawBase_SetPreviewZoom(ITextDrawBase* td, float zoom);
 DLL_EXPORT float TextDrawBase_GetPreviewZoom(const ITextDrawBase* td);
 DLL_EXPORT void TextDrawBase_Restream(ITextDrawBase* td);
 
-DLL_EXPORT ITextDrawBase* TextDraw_CreateText(Vector2 position, StringView text);
+DLL_EXPORT ITextDrawBase* TextDraw_CreateText(Vector2 position, const char* text);
 DLL_EXPORT ITextDrawBase* TextDraw_CreatePreviewModel(Vector2 position, int model);
 
 DLL_EXPORT void Player_BeginSelection(IEntity* player, uint32_t highlight);
