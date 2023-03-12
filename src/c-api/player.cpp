@@ -1,5 +1,6 @@
 #include "Server/Components/Objects/objects.hpp"
 #include "src/c-api/player.hpp"
+#include "types.hpp"
 
 void Player_Kick(IEntity* player)
 {
@@ -197,24 +198,26 @@ int Player_GetDrunkLevel(const IEntity* player)
 	return static_cast<const IPlayer*>(player)->getDrunkLevel();
 }
 
-void Player_SetColour(IEntity* player, const Colour& colour)
+void Player_SetColour(IEntity* player, uint32_t argb)
 {
-	static_cast<IPlayer*>(player)->setColour(colour);
+	static_cast<IPlayer*>(player)->setColour(Colour::FromARGB(argb));
 }
 
-Colour Player_GetColour(const IEntity* player)
+uint32_t Player_GetColour(const IEntity* player)
 {
-	return static_cast<const IPlayer*>(player)->getColour();
+	return static_cast<const IPlayer*>(player)->getColour().ARGB();
 }
 
-void Player_SetOtherColour(IEntity* player, IEntity* other, const Colour& colour)
+void Player_SetOtherColour(IEntity* player, IEntity* other, uint32_t argb)
 {
-	static_cast<IPlayer*>(player)->setOtherColour(*static_cast<IPlayer*>(other), colour);
+	static_cast<IPlayer*>(player)->setOtherColour(*static_cast<IPlayer*>(other), Colour::FromARGB(argb));
 }
 
-bool Player_GetOtherColour(const IEntity* player, IEntity* other, Colour* colour)
+bool Player_GetOtherColour(const IEntity* player, IEntity* other, uint32_t* argb)
 {
-	auto ret = static_cast<const IPlayer*>(player)->getOtherColour(*static_cast<IPlayer*>(other), *colour);
+	Colour colour;
+	auto ret = static_cast<const IPlayer*>(player)->getOtherColour(*static_cast<IPlayer*>(other), colour);
+	*argb = colour.ARGB();
 	return ret;
 }
 
@@ -318,9 +321,9 @@ int Player_GetMoney(IEntity* player)
 	return static_cast<IPlayer*>(player)->getMoney();
 }
 
-void Player_SetMapIcon(IEntity* player, int id, Vector3 pos, int type, const Colour& colour, MapIconStyle style)
+void Player_SetMapIcon(IEntity* player, int id, Vector3 pos, int type, uint32_t argb, MapIconStyle style)
 {
-	static_cast<IPlayer*>(player)->setMapIcon(id, pos, type, colour, style);
+	static_cast<IPlayer*>(player)->setMapIcon(id, pos, type, Colour::FromARGB(argb), style);
 }
 
 void Player_UnsetMapIcon(IEntity* player, int id)
@@ -493,14 +496,14 @@ int Player_GetSkin(const IEntity* player)
 	return static_cast<const IPlayer*>(player)->getSkin();
 }
 
-void Player_SetChatBubble(IEntity* player, const char* text, const Colour& colour, float drawDist, int64_t expireMs)
+void Player_SetChatBubble(IEntity* player, const char* text, uint32_t argb, float drawDist, int64_t expireMs)
 {
-	static_cast<IPlayer*>(player)->setChatBubble(text, colour, drawDist, Milliseconds(expireMs));
+	static_cast<IPlayer*>(player)->setChatBubble(text, Colour::FromARGB(argb), drawDist, Milliseconds(expireMs));
 }
 
-void Player_SendClientMessage(IEntity* player, const Colour& colour, const char* message)
+void Player_SendClientMessage(IEntity* player, uint32_t argb, const char* message)
 {
-	static_cast<IPlayer*>(player)->sendClientMessage(colour, message);
+	static_cast<IPlayer*>(player)->sendClientMessage(Colour::FromARGB(argb), message);
 }
 
 void Player_SendChatMessage(IEntity* player, IEntity* sender, const char* message)
