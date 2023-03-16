@@ -1,2270 +1,747 @@
-#include <cstring>
-
-#include <Server/Components/Classes/classes.hpp>
-#include <glm/ext/vector_float3.hpp>
-#include <glm/geometric.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include "Server/Components/Actors/actors.hpp"
-#include "Server/Components/Checkpoints/checkpoints.hpp"
 #include "Server/Components/Objects/objects.hpp"
-#include "Server/Components/TextDraws/textdraws.hpp"
-#include "Server/Components/Vehicles/vehicles.hpp"
-#include "component.hpp"
-#include "gtaquat.hpp"
-#include "network.hpp"
-#include "player.hpp"
-#include "types.hpp"
 #include "src/c-api/player.hpp"
-#include "src/component.hpp"
-#include "values.hpp"
-
-#define GET_PLAYER_CHECKED(player_output, playerid)                                               \
-	IPlayer* player_output = MainComponent::getInstance()->getCore()->getPlayers().get(playerid); \
-	if (player_output == nullptr)
-
-#define GET_VEHICLE_CHECKED(vehicle_output, vehicleid)                                               \
-	IVehicle* vehicle_output = MainComponent::getInstance()->getVehiclesComponent()->get(vehicleid); \
-	if (vehicle_output == nullptr)
-
-#define GET_OBJECT_CHECKED(object_output, objectid)                                              \
-	IObject* object_output = MainComponent::getInstance()->getObjectsComponent()->get(objectid); \
-	if (object_output == nullptr)
-
-#define GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data_output, textid)                    \
-	IPlayerTextDrawData* textdraw_data_output = queryExtension<IPlayerTextDrawData>(player); \
-	if (textdraw_data_output == nullptr)
-
-#define GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw_output, textid) \
-	IPlayerTextDraw* textdraw_output = nullptr;                                           \
-	for (auto it = textdraw_data->begin(), end = textdraw_data->end(); it != end; ++it)   \
-	{                                                                                     \
-		auto td = *it;                                                                    \
-		if (td->getID() == textid)                                                        \
-		{                                                                                 \
-			textdraw_output = td;                                                         \
-		}                                                                                 \
-	}
+#include "types.hpp"
 
-bool Player_SetSpawnInfo(int playerid, int team, int skin, float x, float y, float z, float rotation, int weapon1, int weapon1_ammo, int weapon2, int weapon2_ammo, int weapon3, int weapon3_ammo)
+void Player_Kick(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerClassData>(player);
-	if (!data)
-	{
-		return false;
-	}
-	WeaponSlots slots;
-	auto slot_data = WeaponSlotData(weapon1, weapon1_ammo);
-	slots[slot_data.slot()] = slot_data;
-	slot_data = WeaponSlotData(weapon2, weapon2_ammo);
-	slots[slot_data.slot()] = slot_data;
-	slot_data = WeaponSlotData(weapon3, weapon3_ammo);
-	slots[slot_data.slot()] = slot_data;
-	data->setSpawnInfo(PlayerClass(
-		skin,
-		team,
-		glm::vec3(x, y, z),
-		rotation,
-		slots));
-	return true;
-}
-
-bool Player_Spawn(int playerid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->spawn();
-	return true;
+	static_cast<IPlayer*>(player)->kick();
 }
 
-bool Player_SetPosition(int playerid, float x, float y, float z)
+void Player_Ban(IEntity* player, const char* reason)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setPosition(glm::vec3(x, y, z));
-	return true;
+	static_cast<IPlayer*>(player)->ban(reason);
 }
 
-bool Player_SetPositionFindZ(int playerid, float x, float y, float z)
+bool Player_IsBot(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setPositionFindZ(glm::vec3(x, y, z));
-	return true;
+	return static_cast<const IPlayer*>(player)->isBot();
 }
 
-bool Player_GetPosition(int playerid, float* x, float* y, float* z)
+const PeerNetworkData Player_GetNetworkData(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto vec3 = player->getPosition();
-	*x = vec3.x;
-	*y = vec3.y;
-	*z = vec3.z;
-	return true;
+	return static_cast<const IPlayer*>(player)->getNetworkData();
 }
 
-bool Player_SetFacingAngle(int playerid, float angle)
+unsigned Player_GetPing(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setRotation(GTAQuat(glm::vec3(0, 0, angle)));
-	return true;
+	return static_cast<const IPlayer*>(player)->getPing();
 }
 
-bool Player_GetFacingAngle(int playerid, float* angle)
+bool Player_SendPacket(IEntity* player, Span<uint8_t> data, int channel, bool dispatchEvents)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	*angle = player->getRotation().ToEuler().z;
-	return true;
+	return static_cast<IPlayer*>(player)->sendPacket(data, channel, dispatchEvents);
 }
 
-bool Player_IsStreamedInFor(int playerid, int forplayerid)
+bool Player_SendRPC(IEntity* player, int id, Span<uint8_t> data, int channel, bool dispatchEvents)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
+	return static_cast<IPlayer*>(player)->sendRPC(id, data, channel, dispatchEvents);
+}
 
-	GET_PLAYER_CHECKED(other, forplayerid)
-	{
-		return false;
-	}
-	player->isStreamedInForPlayer(*other);
-	return true;
+void Player_BroadcastRPCToStreamed(IEntity* player, int id, Span<uint8_t> data, int channel, bool skipFrom)
+{
+	static_cast<IPlayer*>(player)->broadcastRPCToStreamed(id, data, channel, skipFrom);
 }
 
-bool Player_SetInterior(int playerid, unsigned int interiorid)
+void Player_BroadcastPacketToStreamed(IEntity* player, Span<uint8_t> data, int channel, bool skipFrom)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setInterior(interiorid);
-	return true;
+	static_cast<IPlayer*>(player)->broadcastPacketToStreamed(data, channel, skipFrom);
 }
 
-unsigned int Player_GetInterior(int playerid)
+void Player_BroadcastSyncPacket(IEntity* player, Span<uint8_t> data, int channel)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getInterior();
+	static_cast<IPlayer*>(player)->broadcastSyncPacket(data, channel);
 }
 
-bool Player_SetHealth(int playerid, float health)
+void Player_Spawn(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setHealth(health);
-	return true;
+	static_cast<IPlayer*>(player)->spawn();
 }
 
-bool Player_GetHealth(int playerid, float* health)
+ClientVersion Player_GetClientVersion(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	*health = player->getHealth();
-	return true;
+	return static_cast<const IPlayer*>(player)->getClientVersion();
 }
 
-bool Player_SetArmour(int playerid, float armour)
+const char* Player_GetClientVersionName(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setArmour(armour);
-	return true;
+	return static_cast<const IPlayer*>(player)->getClientVersionName().data();
 }
 
-bool Player_GetArmour(int playerid, float* armour)
+void Player_SetPositionFindZ(IEntity* player, Vector3 pos)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	*armour = player->getArmour();
-	return true;
+	static_cast<IPlayer*>(player)->setPositionFindZ(pos);
 }
 
-bool Player_SetAmmo(int playerid, int weaponid, int ammo)
+void Player_SetCameraPosition(IEntity* player, Vector3 pos)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setWeaponAmmo(WeaponSlotData(weaponid, ammo));
-	return true;
+	static_cast<IPlayer*>(player)->setCameraPosition(pos);
 }
 
-int Player_GetAmmo(int playerid)
+Vector3 Player_GetCameraPosition(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getArmedWeaponAmmo();
+	return static_cast<IPlayer*>(player)->getCameraPosition();
 }
 
-int Player_GetWeaponState(int playerid)
+void Player_SetCameraLookAt(IEntity* player, Vector3 pos, PlayerCameraCutType cutType)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return PlayerWeaponState::PlayerWeaponState_Unknown;
-	}
-	return player->getAimData().weaponState;
+	static_cast<IPlayer*>(player)->setCameraLookAt(pos, cutType);
 }
 
-int Player_GetTargetPlayer(int playerid)
+Vector3 Player_GetCameraLookAt(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_PLAYER_ID;
-	}
-	auto target = player->getTargetPlayer();
-	return target ? target->getID() : INVALID_PLAYER_ID;
+	return static_cast<IPlayer*>(player)->getCameraLookAt();
 }
 
-int Player_GetTargetActor(int playerid)
+void Player_SetCameraBehind(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_ACTOR_ID;
-	}
-	auto target = player->getTargetActor();
-	return target ? target->getID() : INVALID_ACTOR_ID;
+	static_cast<IPlayer*>(player)->setCameraBehind();
 }
 
-bool Player_SetTeam(int playerid, int teamid)
+void Player_InterpolateCameraPosition(IEntity* player, Vector3 from, Vector3 to, int time, PlayerCameraCutType cutType)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setTeam(teamid);
-	return true;
+	static_cast<IPlayer*>(player)->interpolateCameraPosition(from, to, time, cutType);
 }
 
-int Player_GetTeam(int playerid)
+void Player_InterpolateCameraLookAt(IEntity* player, Vector3 from, Vector3 to, int time, PlayerCameraCutType cutType)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return TEAM_NONE;
-	}
-	return player->getTeam();
+	static_cast<IPlayer*>(player)->interpolateCameraLookAt(from, to, time, cutType);
 }
 
-bool Player_SetScore(int playerid, int score)
+void Player_AttachCameraToObject(IEntity* player, IEntity* object)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setScore(score);
-	return true;
+	static_cast<IPlayer*>(player)->attachCameraToObject(*static_cast<IObject*>(object));
 }
 
-int Player_GetScore(int playerid)
+void Player_AttachCameraToPlayerObject(IEntity* player, IEntity* playerObject)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getScore();
+	static_cast<IPlayer*>(player)->attachCameraToObject(*static_cast<IPlayerObject*>(playerObject));
 }
 
-int Player_GetDrunkLevel(int playerid)
+EPlayerNameStatus Player_SetName(IEntity* player, const char* name)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getDrunkLevel();
+	return static_cast<IPlayer*>(player)->setName(name);
 }
 
-bool Player_SetDrunkLevel(int playerid, int level)
+const char* Player_GetName(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setDrunkLevel(level);
-	return true;
+	return static_cast<const IPlayer*>(player)->getName().data();
 }
 
-bool Player_SetColor(int playerid, uint32_t argb)
+const char* Player_GetSerial(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setColour(Colour::FromARGB(argb));
-	return true;
+	return static_cast<const IPlayer*>(player)->getSerial().data();
 }
 
-uint32_t Player_GetColor(int playerid)
+void Player_GiveWeapon(IEntity* player, WeaponSlotData weapon)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getColour().RGBA();
-	return true;
+	static_cast<IPlayer*>(player)->giveWeapon(weapon);
 }
 
-bool Player_SetSkin(int playerid, int skinid)
+void Player_RemoveWeapon(IEntity* player, uint8_t weapon)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setSkin(skinid);
-	return true;
+	static_cast<IPlayer*>(player)->removeWeapon(weapon);
 }
 
-int Player_GetSkin(int playerid)
+void Player_SetWeaponAmmo(IEntity* player, WeaponSlotData data)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getSkin();
+	static_cast<IPlayer*>(player)->setWeaponAmmo(data);
 }
 
-bool Player_GiveWeapon(int playerid, int weaponid, int ammo)
+const WeaponSlotData* Player_GetWeapons(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->giveWeapon(WeaponSlotData(weaponid, ammo));
-	return true;
+	return static_cast<const IPlayer*>(player)->getWeapons().data();
 }
 
-bool Player_ResetWeapons(int playerid)
+CWeaponSlotData Player_GetWeaponSlot(IEntity* player, int slot)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->resetWeapons();
-	return true;
+	auto data = static_cast<IPlayer*>(player)->getWeaponSlot(slot);
+	return CWeaponSlotData { data.id, data.ammo };
 }
 
-bool Player_SetArmedWeapon(int playerid, uint32_t weaponid)
+void Player_ResetWeapons(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setArmedWeapon(weaponid);
-	return true;
+	static_cast<IPlayer*>(player)->resetWeapons();
 }
 
-bool Player_GetWeaponData(int playerid, int slot, int* weapon, int* ammo)
+void Player_SetArmedWeapon(IEntity* player, uint32_t weapon)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = player->getWeaponSlot(slot);
-	*weapon = data.id;
-	*ammo = data.ammo;
-	return true;
+	static_cast<IPlayer*>(player)->setArmedWeapon(weapon);
 }
 
-bool Player_GiveMoney(int playerid, int money)
+uint32_t Player_GetArmedWeapon(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->giveMoney(money);
-	return true;
+	return static_cast<const IPlayer*>(player)->getArmedWeapon();
 }
 
-bool Player_ResetMoney(int playerid)
+uint32_t Player_GetArmedWeaponAmmo(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->resetMoney();
-	return true;
+	return static_cast<const IPlayer*>(player)->getArmedWeaponAmmo();
 }
 
-int Player_SetName(int playerid, const char* name)
+void Player_SetShopName(IEntity* player, const char* name)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return -1;
-	}
-	return player->setName(name);
+	static_cast<IPlayer*>(player)->setShopName(name);
 }
 
-int Player_GetMoney(int playerid)
+const char* Player_GetShopName(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getMoney();
+	return static_cast<const IPlayer*>(player)->getShopName().data();
 }
 
-int Player_GetState(int playerid)
+void Player_SetDrunkLevel(IEntity* player, int level)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return PlayerState::PlayerState_None;
-	}
-	return player->getState();
+	static_cast<IPlayer*>(player)->setDrunkLevel(level);
 }
 
-bool Player_GetIp(int playerid, char* ip, std::size_t size)
+int Player_GetDrunkLevel(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	HybridString<46> address;
-	PeerAddress::ToString(player->getNetworkData().networkID.address, address);
-	memcpy(ip, address.data(), size);
-	return true;
+	return static_cast<const IPlayer*>(player)->getDrunkLevel();
 }
 
-unsigned int Player_GetPing(int playerid)
+void Player_SetColour(IEntity* player, uint32_t argb)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getPing();
+	static_cast<IPlayer*>(player)->setColour(Colour::FromARGB(argb));
 }
 
-int Player_GetArmedWeapon(int playerid)
+uint32_t Player_GetColour(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getArmedWeapon();
+	return static_cast<const IPlayer*>(player)->getColour().ARGB();
 }
 
-bool Player_GetKeys(int playerid, int* keys, int* updown, int* leftright)
+void Player_SetOtherColour(IEntity* player, IEntity* other, uint32_t argb)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = player->getKeyData();
-	*keys = data.keys;
-	*updown = data.upDown;
-	*leftright = data.leftRight;
-	return true;
+	static_cast<IPlayer*>(player)->setOtherColour(*static_cast<IPlayer*>(other), Colour::FromARGB(argb));
 }
 
-void Player_GetName(int playerid, char* name, std::size_t size)
+bool Player_GetOtherColour(const IEntity* player, IEntity* other, uint32_t* argb)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return;
-	}
-	player->getName().copy(name, size);
+	Colour colour;
+	auto ret = static_cast<const IPlayer*>(player)->getOtherColour(*static_cast<IPlayer*>(other), colour);
+	*argb = colour.ARGB();
+	return ret;
 }
 
-bool Player_SetTime(int playerid, int hour, int minute)
+void Player_SetControllable(IEntity* player, bool controllable)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setTime(Hours(hour), Minutes(minute));
-	return true;
+	static_cast<IPlayer*>(player)->setControllable(controllable);
 }
 
-bool Player_GetTime(int playerid, int* hour, int* minute)
+bool Player_GetControllable(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto pair = player->getTime();
-	std::chrono::duration(pair.first);
-	*hour = pair.first.count();
-	*minute = pair.second.count();
-	return true;
+	return static_cast<const IPlayer*>(player)->getControllable();
 }
 
-bool Player_ToggleClock(int playerid, bool toggle)
+void Player_SetSpectating(IEntity* player, bool spectating)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->useClock(toggle);
-	return true;
+	static_cast<IPlayer*>(player)->setSpectating(spectating);
 }
 
-bool Player_SetWeather(int playerid, int weather)
+void Player_SetWantedLevel(IEntity* player, unsigned level)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setWeather(weather);
-	return true;
+	static_cast<IPlayer*>(player)->setWantedLevel(level);
 }
 
-bool Player_ForceClassSelection(int playerid)
+unsigned Player_GetWantedLevel(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->forceClassSelection();
-	return true;
+	return static_cast<const IPlayer*>(player)->getWantedLevel();
 }
 
-bool Player_SetWantedLevel(int playerid, unsigned int level)
+void Player_PlaySound(IEntity* player, uint32_t sound, Vector3 pos)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setWantedLevel(level);
-	return true;
+	static_cast<IPlayer*>(player)->playSound(sound, pos);
 }
 
-unsigned int Player_GetWantedLevel(int playerid)
+uint32_t Player_LastPlayedSound(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getWantedLevel();
+	return static_cast<const IPlayer*>(player)->lastPlayedSound();
 }
 
-bool Player_SetFightingStyle(int playerid, int style)
+void Player_PlayAudio(IEntity* player, const char* url, bool usePos, Vector3 pos, float distance)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setFightingStyle(static_cast<PlayerFightingStyle>(style));
-	return true;
+	static_cast<IPlayer*>(player)->playAudio(url, usePos, pos, distance);
 }
 
-int Player_GetFightingStyle(int playerid)
+bool Player_PlayerCrimeReport(IEntity* player, IEntity* suspect, int crime)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getFightingStyle();
+	return static_cast<IPlayer*>(player)->playerCrimeReport(*static_cast<IPlayer*>(suspect), crime);
 }
 
-bool Player_SetVelocity(int playerid, float x, float y, float z)
+void Player_StopAudio(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setVelocity(glm::vec3(x, y, z));
-	return true;
+	static_cast<IPlayer*>(player)->stopAudio();
 }
 
-bool Player_GetVelocity(int playerid, float* x, float* y, float* z)
+const char* Player_LastPlayedAudio(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto vec3 = player->getVelocity();
-	*x = vec3.x;
-	*y = vec3.y;
-	*z = vec3.z;
-	return true;
+	return static_cast<const IPlayer*>(player)->lastPlayedAudio().data();
 }
 
-bool Player_PlayCrimeReport(int playerid, int suspectid, int crime)
+void Player_CreateExplosion(IEntity* player, Vector3 vec, int type, float radius)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
+	static_cast<IPlayer*>(player)->createExplosion(vec, type, radius);
+}
 
-	GET_PLAYER_CHECKED(suspect, suspectid)
-	{
-		return false;
-	}
-	return player->playerCrimeReport(*suspect, crime);
+void Player_SendDeathMessage(IEntity* player, IEntity* killed, IEntity* killer, int weapon)
+{
+	static_cast<IPlayer*>(player)->sendDeathMessage(*static_cast<IPlayer*>(killed), static_cast<IPlayer*>(killer), weapon);
 }
 
-bool Player_PlayAudioStream(int playerid, const char* url, float x, float y, float z, float distance, bool usepos)
+void Player_SendEmptyDeathMessage(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->playAudio(url, usepos, glm::vec3(x, y, z), distance);
-	return true;
+	static_cast<IPlayer*>(player)->sendEmptyDeathMessage();
 }
 
-bool Player_StopAudioStream(int playerid)
+void Player_RemoveDefaultObjects(IEntity* player, unsigned model, Vector3 pos, float radius)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->stopAudio();
-	return true;
+	static_cast<IPlayer*>(player)->removeDefaultObjects(model, pos, radius);
 }
 
-bool Player_SetShopName(int playerid, const char* shopname)
+void Player_ForceClassSelection(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setShopName(shopname);
-	return true;
+	static_cast<IPlayer*>(player)->forceClassSelection();
 }
 
-bool Player_SetSkillLevel(int playerid, int skill, int level)
+void Player_SetMoney(IEntity* player, int money)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setSkillLevel(static_cast<PlayerWeaponSkill>(skill), level);
-	return true;
+	static_cast<IPlayer*>(player)->setMoney(money);
 }
 
-int Player_GetSurfingVehicleID(int playerid)
+void Player_GiveMoney(IEntity* player, int money)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_VEHICLE_ID;
-	}
-	auto data = player->getSurfingData();
-	if (data.type != PlayerSurfingData::Type::Vehicle)
-	{
-		return INVALID_VEHICLE_ID;
-	}
-	return data.ID;
+	static_cast<IPlayer*>(player)->giveMoney(money);
 }
 
-int Player_GetSurfingObjectID(int playerid)
+void Player_ResetMoney(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_OBJECT_ID;
-	}
-	auto data = player->getSurfingData();
-	if (data.type != PlayerSurfingData::Type::Object
-		&& data.type != PlayerSurfingData::Type::PlayerObject)
-	{
-		return INVALID_OBJECT_ID;
-	}
-	return data.ID;
+	static_cast<IPlayer*>(player)->resetMoney();
 }
 
-bool Player_RemoveBuilding(int playerid, int modelid, float x, float y, float z, float radius)
+int Player_GetMoney(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->removeDefaultObjects(modelid, glm::vec3(x, y, z), radius);
-	return true;
+	return static_cast<IPlayer*>(player)->getMoney();
 }
 
-bool Player_GetLastShotVectors(int playerid, float* origin_x, float* origin_y, float* origin_z, float* hit_x, float* hit_y, float* hit_z)
+void Player_SetMapIcon(IEntity* player, int id, Vector3 pos, int type, uint32_t argb, MapIconStyle style)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = player->getBulletData();
-	*origin_x = data.origin.x;
-	*origin_y = data.origin.y;
-	*origin_z = data.origin.z;
-	*hit_x = data.hitPos.x;
-	*hit_y = data.hitPos.y;
-	*hit_z = data.hitPos.z;
-	return true;
-}
-
-bool Player_SetAttachedObject(int playerid, int index, int modelid, int bone, float offset_x, float offset_y, float offset_z, float rot_x, float rot_y, float rot_z, float scale_x, float scale_y, float scale_z, int mat_color1, int mat_color2)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto object_data = queryExtension<IPlayerObjectData>(player);
-	if (!object_data)
-	{
-		return false;
-	}
-	object_data->setAttachedObject(
-		index,
-		ObjectAttachmentSlotData {
-			modelid,
-			bone,
-			glm::vec3(offset_x, offset_y, offset_z),
-			glm::vec3(rot_x, rot_y, rot_z),
-			glm::vec3(scale_x, scale_y, scale_z),
-			Colour::FromRGBA(mat_color1),
-			Colour::FromRGBA(mat_color2) });
-	return true;
-}
-
-bool Player_RemoveAttachedObject(int playerid, int index)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto object_data = queryExtension<IPlayerObjectData>(player);
-	if (!object_data)
-	{
-		return false;
-	}
-	object_data->removeAttachedObject(index);
-	return true;
+	static_cast<IPlayer*>(player)->setMapIcon(id, pos, type, Colour::FromARGB(argb), style);
 }
 
-bool Player_IsAttachedObjectSlotUsed(int playerid, int index)
+void Player_UnsetMapIcon(IEntity* player, int id)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto object_data = queryExtension<IPlayerObjectData>(player);
-	if (!object_data)
-	{
-		return false;
-	}
-	return object_data->hasAttachedObject(index);
+	static_cast<IPlayer*>(player)->unsetMapIcon(id);
 }
 
-bool Player_EditAttachedObject(int playerid, int index)
+void Player_UseStuntBonuses(IEntity* player, bool enable)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto object_data = queryExtension<IPlayerObjectData>(player);
-	if (!object_data)
-	{
-		return false;
-	}
-	object_data->editAttachedObject(index);
-	return true;
+	static_cast<IPlayer*>(player)->useStuntBonuses(enable);
 }
 
-int Player_CreateTextDraw(int playerid, float x, float y, const char* text)
+void Player_ToggleOtherNameTag(IEntity* player, IEntity* other, bool toggle)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_TEXTDRAW;
-	}
-	auto player_td_data = queryExtension<IPlayerTextDrawData>(player);
-	if (!player_td_data)
-	{
-		return INVALID_TEXTDRAW;
-	}
-	return player_td_data->create(glm::vec2(x, y), text)->getID();
+	static_cast<IPlayer*>(player)->toggleOtherNameTag(*static_cast<IPlayer*>(other), toggle);
 }
 
-int Player_CreatePreviewModelTextDraw(int playerid, float x, float y, int model)
+void Player_SetTime(IEntity* player, int64_t hr, int64_t min)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_TEXTDRAW;
-	}
-	auto player_td_data = queryExtension<IPlayerTextDrawData>(player);
-	if (!player_td_data)
-	{
-		return INVALID_TEXTDRAW;
-	}
-	return player_td_data->create(glm::vec2(x, y), model)->getID();
+	static_cast<IPlayer*>(player)->setTime(Hours(hr), Minutes(min));
 }
 
-bool Player_DestroyTextDraw(int playerid, int textid)
+void Player_GetTime(const IEntity* player, int64_t* hours, int64_t* minutes)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	for (auto it = textdraw_data->begin(), end = textdraw_data->end(); it != end; ++it)
-	{
-		auto td = *it;
-		if (td->getID() == textid)
-		{
-			textdraw_data->release(std::distance(textdraw_data->begin(), it));
-			return true;
-		}
-	}
-	return false;
+	auto pair = static_cast<const IPlayer*>(player)->getTime();
+	*hours = pair.first.count();
+	*minutes = pair.second.count();
 }
 
-bool Player_GetTextDrawPosition(int playerid, int textid, float* x, float* y)
+void Player_UseClock(IEntity* player, bool enable)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	auto vec2 = textdraw->getPosition();
-	*x = vec2.x;
-	*y = vec2.y;
-	return true;
+	static_cast<IPlayer*>(player)->useClock(enable);
 }
 
-bool Player_GetTextDrawLetterSize(int playerid, int textid, float* x, float* y)
+bool Player_HasClock(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	auto vec2 = textdraw->getLetterSize();
-	*x = vec2.x;
-	*y = vec2.y;
-	return true;
+	return static_cast<const IPlayer*>(player)->hasClock();
 }
 
-bool Player_GetTextDrawTextSize(int playerid, int textid, float* x, float* y)
+void Player_UseWidescreen(IEntity* player, bool enable)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	auto vec2 = textdraw->getTextSize();
-	*x = vec2.x;
-	*y = vec2.y;
-	return true;
+	static_cast<IPlayer*>(player)->useWidescreen(enable);
 }
 
-int Player_GetTextDrawAlignment(int playerid, int textid)
+bool Player_HasWidescreen(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return TextDrawAlignmentTypes::TextDrawAlignment_Default;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return TextDrawAlignmentTypes::TextDrawAlignment_Default;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return TextDrawAlignmentTypes::TextDrawAlignment_Default;
-	}
-	return textdraw->getAlignment();
+	return static_cast<const IPlayer*>(player)->hasWidescreen();
 }
 
-uint32_t Player_GetTextDrawColor(int playerid, int textid)
+void Player_SetTransform(IEntity* player, Vector3 vec3)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getLetterColour().ARGB();
+	static_cast<IPlayer*>(player)->setTransform(GTAQuat(vec3));
 }
 
-bool Player_TextDrawHasBox(int playerid, int textid)
+void Player_SetHealth(IEntity* player, float health)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	return textdraw->hasBox();
+	static_cast<IPlayer*>(player)->setHealth(health);
 }
 
-uint32_t Player_GetTextDrawBoxColor(int playerid, int textid)
+float Player_GetHealth(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	return textdraw->getBoxColour().ARGB();
+	return static_cast<const IPlayer*>(player)->getHealth();
 }
 
-int Player_GetTextDrawShadow(int playerid, int textid)
+void Player_SetScore(IEntity* player, int score)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getShadow();
+	static_cast<IPlayer*>(player)->setScore(score);
 }
 
-int Player_GetTextDrawOutline(int playerid, int textid)
+int Player_GetScore(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getOutline();
+	return static_cast<const IPlayer*>(player)->getScore();
 }
 
-uint32_t Player_GetTextDrawBackgroundColor(int playerid, int textid)
+void Player_SetArmour(IEntity* player, float armour)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getBackgroundColour().ARGB();
+	static_cast<IPlayer*>(player)->setArmour(armour);
 }
 
-int Player_GetTextDrawStyle(int playerid, int textid)
+float Player_GetArmour(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getStyle();
+	return static_cast<const IPlayer*>(player)->getArmour();
 }
 
-bool Player_IsTextDrawProportional(int playerid, int textid)
+void Player_SetGravity(IEntity* player, float gravity)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	return textdraw->isProportional();
+	static_cast<IPlayer*>(player)->setGravity(gravity);
 }
 
-bool Player_IsTextDrawSelectable(int playerid, int textid)
+float Player_GetGravity(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	return textdraw->isSelectable();
+	return static_cast<const IPlayer*>(player)->getGravity();
 }
 
-bool Player_GetTextDrawText(int playerid, int textid, char* text, std::size_t size)
+void Player_SetWorldTime(IEntity* player, uint64_t time)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->getText().copy(text, size);
-	return true;
+	static_cast<IPlayer*>(player)->setWorldTime(Hours(time));
 }
 
-int Player_GetTextDrawPreviewModel(int playerid, int textid)
+void Player_ApplyAnimation(IEntity* player, const AnimationData& animation, PlayerAnimationSyncType syncType)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_OBJECT_MODEL_ID;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return INVALID_OBJECT_MODEL_ID;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return INVALID_OBJECT_MODEL_ID;
-	}
-	return textdraw->getPreviewModel();
-}
-bool Player_GetTextDrawPreviewRotation(int playerid, int textid, float* rot_x, float* rot_y, float* rot_z)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	auto vec3 = player->getRotation().ToEuler();
-	*rot_x = vec3.x;
-	*rot_y = vec3.y;
-	*rot_z = vec3.z;
-	return true;
-}
-
-float Player_GetTextDrawPreviewZoom(int playerid, int textid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getPreviewZoom();
-}
-
-int Player_GetTextDrawPreviewVehiclePrimaryColor(int playerid, int textid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getPreviewVehicleColour().first;
-}
-
-int Player_GetTextDrawPreviewVehicleSecondaryColor(int playerid, int textid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return 0;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return 0;
-	}
-	return textdraw->getPreviewVehicleColour().second;
-}
-
-bool Player_SetTextDrawPosition(int playerid, int textid, float x, float y)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setPosition(glm::vec2(x, y));
-	return true;
-}
-
-bool Player_SetTextDrawLetterSize(int playerid, int textid, float x, float y)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setLetterSize(glm::vec2(x, y));
-	return true;
-}
-
-bool Player_SetTextDrawTextSize(int playerid, int textid, float x, float y)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setTextSize(glm::vec2(x, y));
-	return true;
-}
-
-bool Player_SetTextDrawAlignment(int playerid, int textid, int alignment)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setAlignment(static_cast<TextDrawAlignmentTypes>(alignment));
-	return true;
-}
-
-bool Player_SetTextDrawColor(int playerid, int textid, uint32_t argb)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setColour(Colour::FromARGB(argb));
-	return true;
-}
-
-bool Player_SetTextDrawUseBox(int playerid, int textid, bool use)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->useBox(use);
-	return true;
-}
-
-bool Player_SetTextDrawBoxColor(int playerid, int textid, uint32_t argb)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setBoxColour(Colour::FromARGB(argb));
-	return true;
-}
-
-bool Player_SetTextDrawShadow(int playerid, int textid, int size)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setShadow(size);
-	return true;
-}
-
-bool Player_SetTextDrawOutline(int playerid, int textid, int size)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setOutline(size);
-	return true;
-}
-
-bool Player_SetTextDrawBackgroundColor(int playerid, int textid, uint32_t argb)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setBackgroundColour(Colour::FromARGB(argb));
-	return true;
-}
-
-bool Player_SetTextDrawStyle(int playerid, int textid, int style)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setStyle(static_cast<TextDrawStyle>(style));
-	return true;
-}
-
-bool Player_SetTextDrawProportional(int playerid, int textid, bool proportional)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setProportional(proportional);
-	return true;
-}
-
-bool Player_SetTextDrawSelectable(int playerid, int textid, bool selectable)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setSelectable(selectable);
-	return true;
-}
-
-bool Player_ShowTextDraw(int playerid, int textid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->show();
-	return true;
-}
-
-bool Player_HideTextDraw(int playerid, int textid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->hide();
-	return true;
-}
-
-bool Player_SetTextDrawText(int playerid, int textid, const char* text)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setText(text);
-	return true;
-}
-
-bool Player_SetTextDrawPreviewModel(int playerid, int textid, int model)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setPreviewModel(model);
-	return true;
-}
-
-bool Player_SetTextDrawPreviewRotation(int playerid, int textid, float rot_x, float rot_y, float rot_z)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setPreviewRotation(glm::vec3(rot_x, rot_y, rot_z));
-	return true;
-}
-
-bool Player_SetTextDrawPreviewZoom(int playerid, int textid, float zoom)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setPreviewZoom(zoom);
-	return true;
-}
-
-bool Player_SetTextDrawPreviewVehiclePrimaryColor(int playerid, int textid, int color)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setPreviewVehicleColour(color, textdraw->getPreviewVehicleColour().second);
-	return true;
+	static_cast<IPlayer*>(player)->applyAnimation(animation, syncType);
 }
 
-bool Player_SetTextDrawPreviewVehicleSecondaryColor(int playerid, int textid, int color)
+void Player_ClearAnimations(IEntity* player, PlayerAnimationSyncType syncType)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->setPreviewVehicleColour(textdraw->getPreviewVehicleColour().first, color);
-	return true;
-}
-
-bool Player_RestreamTextDraw(int playerid, int textid)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_CHECKED(player, textdraw_data, textid)
-	{
-		return false;
-	}
-	GET_PLAYER_TEXTDRAW_BY_ID_CHECKED(player, textdraw_data, textdraw, textid)
-	{
-		return false;
-	}
-	textdraw->restream();
-	return true;
+	static_cast<IPlayer*>(player)->clearAnimations(syncType);
 }
 
-bool Player_SetPVarInt(int playerid, const char* varname, int value)
+PlayerAnimationData Player_GetAnimationData(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	return static_cast<const IPlayer*>(player)->getAnimationData();
 }
 
-int Player_GetPVarInt(int playerid, const char* varname)
+PlayerSurfingData Player_GetSurfingData(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	return static_cast<const IPlayer*>(player)->getSurfingData();
 }
 
-bool Player_SetPVarString(int playerid, const char* varname, const char* value)
+void Player_StreamInForPlayer(IEntity* player, IEntity* other)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	static_cast<IPlayer*>(player)->streamInForPlayer(*static_cast<IPlayer*>(other));
 }
 
-bool Player_GetPVarString(int playerid, const char* varname, char* value, std::size_t size)
+bool Player_IsStreamedInForPlayer(const IEntity* player, const IEntity* other)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	return static_cast<const IPlayer*>(player)->isStreamedInForPlayer(*static_cast<const IPlayer*>(other));
 }
 
-bool Player_SetPVarFloat(int playerid, const char* varname, float value)
+void Player_StreamOutForPlayer(IEntity* player, IEntity* other)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	static_cast<IPlayer*>(player)->streamOutForPlayer(*static_cast<IPlayer*>(other));
 }
 
-float Player_GetPVarFloat(int playerid, const char* varname)
+std::size_t Player_GetStreamedPlayers(IEntity* player, IEntity*** streamedPlayers)
 {
-	GET_PLAYER_CHECKED(player, playerid)
+	auto set = static_cast<IPlayer*>(player)->streamedForPlayers();
+	auto size = set.size();
+	std::size_t idx = 0;
+	*streamedPlayers = new IEntity*[size];
+	for (auto& i : set)
 	{
-		return false;
+		*(*streamedPlayers + idx++) = static_cast<IEntity*>(i);
 	}
-	return true;
+	return size;
 }
 
-bool Player_DeletePVar(int playerid, const char* varname)
+PlayerState Player_GetState(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	return static_cast<const IPlayer*>(player)->getState();
 }
 
-int Player_GetPVarsUpperIndex(int playerid)
+void Player_SetTeam(IEntity* player, int team)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	static_cast<IPlayer*>(player)->setTeam(team);
 }
 
-bool Player_GetPVarNameAtIndex(int playerid, int index, char* varname, std::size_t size)
+int Player_GetTeam(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	return static_cast<const IPlayer*>(player)->getTeam();
 }
 
-int Player_GetPVarType(int playerid, const char* varname)
+void Player_SetSkin(IEntity* player, int skin, bool send)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	static_cast<IPlayer*>(player)->setSkin(skin, send);
 }
 
-bool Player_SetChatBubble(int playerid, const char* text, int color, float drawdistance, int expiretime)
+int Player_GetSkin(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	return static_cast<const IPlayer*>(player)->getSkin();
 }
 
-bool Player_PutInVehicle(int playerid, int vehicleid, int seatid)
+void Player_SetChatBubble(IEntity* player, const char* text, uint32_t argb, float drawDist, int64_t expireMs)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_VEHICLE_CHECKED(vehicle, vehicleid)
-	{
-		return false;
-	}
-	vehicle->putPlayer(*player, seatid);
-	return true;
+	static_cast<IPlayer*>(player)->setChatBubble(text, Colour::FromARGB(argb), drawDist, Milliseconds(expireMs));
 }
 
-int Player_GetVehicleID(int playerid)
+void Player_SendClientMessage(IEntity* player, uint32_t argb, const char* message)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_VEHICLE_ID;
-	}
-	auto data = queryExtension<IPlayerVehicleData>(player);
-	if (data == nullptr)
-	{
-		return INVALID_VEHICLE_ID;
-	}
-	return data->getVehicle()->getID();
+	static_cast<IPlayer*>(player)->sendClientMessage(Colour::FromARGB(argb), message);
 }
 
-int Player_GetVehicleSeat(int playerid)
+void Player_SendChatMessage(IEntity* player, IEntity* sender, const char* message)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return -1;
-	}
-	auto data = queryExtension<IPlayerVehicleData>(player);
-	if (data == nullptr)
-	{
-		return -1;
-	}
-	return data->getSeat();
+	static_cast<IPlayer*>(player)->sendChatMessage(*static_cast<IPlayer*>(sender), message);
 }
 
-bool Player_RemoveFromVehicle(int playerid, bool force)
+void Player_SendCommand(IEntity* player, const char* message)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->removeFromVehicle(force);
-	return true;
+	static_cast<IPlayer*>(player)->sendCommand(message);
 }
 
-bool Player_ToggleControllable(int playerid, bool toggle)
+void Player_SendGameText(IEntity* player, const char* message, int64_t timeMs, int style)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setControllable(toggle);
-	return true;
+	static_cast<IPlayer*>(player)->sendGameText(message, Milliseconds(timeMs), style);
 }
 
-bool Player_PlaySound(int playerid, uint32_t soundid, float x, float y, float z)
+void Player_HideGameText(IEntity* player, int style)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->playSound(soundid, glm::vec3(x, y, z));
-	return true;
+	static_cast<IPlayer*>(player)->hideGameText(style);
 }
 
-bool Player_ApplyAnimation(int playerid, const char* anim_lib, const char* anim_name, float delta, bool loop, bool lock_x, bool lock_y, bool freeze, int time, int sync_type)
+bool Player_HasGameText(IEntity* player, int style)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->applyAnimation(
-		AnimationData(delta, loop, lock_x, lock_y, freeze, time, anim_lib, anim_name), static_cast<PlayerAnimationSyncType>(sync_type));
-	return true;
+	return static_cast<IPlayer*>(player)->hasGameText(style);
 }
 
-bool Player_ClearAnimations(int playerid, int sync_type)
+const char* Player_GetGameText(IEntity* player, int style, int64_t* timeMs, int64_t* remainingMs)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->clearAnimations(static_cast<PlayerAnimationSyncType>(sync_type));
-	return true;
+	StringView message_;
+	Milliseconds time_, remaining_;
+	auto ret = static_cast<IPlayer*>(player)->getGameText(style, message_, time_, remaining_);
+	*timeMs = time_.count();
+	*remainingMs = remaining_.count();
+	return message_.data();
 }
 
-uint16_t Player_GetAnimationIndex(int playerid)
+void Player_SetWeather(IEntity* player, int weatherID)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getAnimationData().ID;
+	static_cast<IPlayer*>(player)->setWeather(weatherID);
 }
 
-int Player_GetSpecialAction(int playerid)
+int Player_GetWeather(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return PlayerSpecialAction::SpecialAction_None;
-	}
-	return player->getAction();
+	return static_cast<const IPlayer*>(player)->getWeather();
 }
 
-bool Player_SetSpecialAction(int playerid, int actionid)
+void Player_SetWorldBounds(IEntity* player, Vector4 coords)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setAction(static_cast<PlayerSpecialAction>(actionid));
-	return true;
+	static_cast<IPlayer*>(player)->setWorldBounds(coords);
 }
 
-bool Player_DisableRemoteVehicleCollisions(int playerid, bool collide)
+Vector4 Player_GetWorldBounds(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setRemoteVehicleCollisions(collide);
-	return true;
+	return static_cast<const IPlayer*>(player)->getWorldBounds();
 }
 
-bool Player_SetCheckpoint(int playerid, float x, float y, float z, float radius)
+void Player_SetFightingStyle(IEntity* player, PlayerFightingStyle style)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerCheckpointData>(player);
-	if (data == nullptr)
-	{
-		return false;
-	}
-
-	ICheckpointData& cp = data->getCheckpoint();
-	cp.setPosition(glm::vec3(x, y, z));
-	cp.setRadius(radius);
-	cp.enable();
-	return true;
+	static_cast<IPlayer*>(player)->setFightingStyle(style);
 }
 
-bool Player_DisableCheckpoint(int playerid)
+PlayerFightingStyle Player_GetFightingStyle(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerCheckpointData>(player);
-	if (data == nullptr)
-	{
-		return false;
-	}
-	data->getCheckpoint().disable();
-	return true;
+	return static_cast<const IPlayer*>(player)->getFightingStyle();
 }
 
-bool Player_SetRaceCheckpoint(int playerid, int type, float x, float y, float z, float nextx, float nexty, float nextz, float radius)
+void Player_SetSkillLevel(IEntity* player, PlayerWeaponSkill skill, int level)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerCheckpointData>(player);
-	if (data == nullptr)
-	{
-		return false;
-	}
-
-	IRaceCheckpointData& cp = data->getRaceCheckpoint();
-	cp.setPosition(glm::vec3(x, y, z));
-	cp.setNextPosition(glm::vec3(nextx, nexty, nextz));
-	cp.setRadius(radius);
-	cp.setType(static_cast<RaceCheckpointType>(type));
-	cp.enable();
-	return true;
+	static_cast<IPlayer*>(player)->setSkillLevel(skill, level);
 }
 
-bool Player_DisableRaceCheckpoint(int playerid)
+void Player_SetAction(IEntity* player, PlayerSpecialAction action)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerCheckpointData>(player);
-	if (data == nullptr)
-	{
-		return false;
-	}
-	data->getRaceCheckpoint().disable();
-	return true;
+	static_cast<IPlayer*>(player)->setAction(action);
 }
 
-bool Player_SetWorldBounds(int playerid, float x_max, float x_min, float y_max, float y_min)
+PlayerSpecialAction Player_GetAction(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setWorldBounds(glm::vec4(x_max, x_min, y_max, y_min));
-	return true;
+	return static_cast<const IPlayer*>(player)->getAction();
 }
 
-bool PLayer_SetMarkerFor(int playerid, int showplayerid, int color)
+void Player_SetVelocity(IEntity* player, Vector3 velocity)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	static_cast<IPlayer*>(player)->setVelocity(velocity);
 }
 
-bool Player_ShowNameTagFor(int playerid, int showplayerid, bool show)
+Vector3 Player_GetVelocity(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_CHECKED(showplayer, showplayerid)
-	{
-		return false;
-	}
-	player->toggleOtherNameTag(*showplayer, show);
-	return true;
+	return static_cast<const IPlayer*>(player)->getVelocity();
 }
 
-bool Player_SetMapIcon(int playerid, int iconid, float x, float y, float z, int markertype, uint32_t argb, int style)
+void Player_SetInterior(IEntity* player, unsigned interior)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setMapIcon(iconid, glm::vec3(x, y, z), markertype, Colour::FromRGBA(argb), static_cast<MapIconStyle>(style));
-	return true;
+	static_cast<IPlayer*>(player)->setInterior(interior);
 }
 
-bool Player_RemoveMapIcon(int playerid, int iconid)
+unsigned Player_GetInterior(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->unsetMapIcon(iconid);
-	return true;
+	return static_cast<const IPlayer*>(player)->getInterior();
 }
 
-bool Player_AllowTeleport(int playerid, bool allow)
+const PlayerKeyData Player_GetKeyData(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->allowTeleport(allow);
-	return true;
+	return static_cast<const IPlayer*>(player)->getKeyData();
 }
 
-bool Player_SetCameraPos(int playerid, float x, float y, float z)
+const uint16_t* Player_GetSkillLevels(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setCameraPosition(glm::vec3(x, y, z));
-	return true;
+	return static_cast<const IPlayer*>(player)->getSkillLevels().data();
 }
 
-bool Player_SetCameraLookAt(int playerid, float x, float y, float z, int cut_type)
+const PlayerAimData Player_GetAimData(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setCameraLookAt(glm::vec3(x, y, z), static_cast<PlayerCameraCutType>(cut_type));
-	return true;
+	return static_cast<const IPlayer*>(player)->getAimData();
 }
 
-bool Player_SetCameraBehind(int playerid)
+const PlayerBulletData Player_GetBulletData(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setCameraBehind();
-	return true;
+	return static_cast<const IPlayer*>(player)->getBulletData();
 }
 
-bool Player_GetCameraPos(int playerid, float* x, float* y, float* z)
+void Player_UseCameraTargeting(IEntity* player, bool enable)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto vec3 = player->getCameraPosition();
-	*x = vec3.x;
-	*y = vec3.y;
-	*z = vec3.z;
-	return true;
+	static_cast<IPlayer*>(player)->useCameraTargeting(enable);
 }
 
-bool Player_GetCameraFrontVector(int playerid, float* x, float* y, float* z)
+bool Player_HasCameraTargeting(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto vec3 = player->getCameraLookAt();
-	*x = vec3.x;
-	*y = vec3.y;
-	*z = vec3.z;
-	return true;
+	return static_cast<const IPlayer*>(player)->hasCameraTargeting();
 }
 
-uint8_t Player_GetCameraMode(int playerid)
+void Player_RemoveFromVehicle(IEntity* player, bool force)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return -1;
-	}
-	return player->getAimData().camMode;
+	static_cast<IPlayer*>(player)->removeFromVehicle(force);
 }
 
-bool Player_EnableCameraTarget(int playerid, bool enable)
+IEntity* Player_GetCameraTargetPlayer(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->useCameraTargeting(enable);
-	return true;
+	return static_cast<IPlayer*>(player)->getCameraTargetPlayer();
 }
 
-int Player_GetCameraTargetObject(int playerid)
+IVehicle* Player_GetCameraTargetVehicle(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_OBJECT_ID;
-	}
-	auto object = player->getCameraTargetObject();
-	if (object == nullptr)
-	{
-		return INVALID_OBJECT_ID;
-	}
-	return object->getID();
+	return static_cast<IPlayer*>(player)->getCameraTargetVehicle();
 }
 
-int Player_GetCameraTargetVehicle(int playerid)
+IObject* Player_GetCameraTargetObject(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_VEHICLE_ID;
-	}
-	auto vehicle = player->getCameraTargetVehicle();
-	if (vehicle == nullptr)
-	{
-		return INVALID_VEHICLE_ID;
-	}
-	return vehicle->getID();
+	return static_cast<IPlayer*>(player)->getCameraTargetObject();
 }
 
-int Player_GetCameraTargetPlayer(int playerid)
+IActor* Player_GetCameraTargetActor(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_PLAYER_ID;
-	}
-	auto target = player->getCameraTargetPlayer();
-	if (target == nullptr)
-	{
-		return INVALID_PLAYER_ID;
-	}
-	return target->getID();
+	return static_cast<IPlayer*>(player)->getCameraTargetActor();
 }
 
-int Player_GetCameraTargetActor(int playerid)
+IEntity* Player_GetTargetPlayer(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return INVALID_ACTOR_ID;
-	}
-	auto actor = player->getCameraTargetActor();
-	if (actor == nullptr)
-	{
-		return INVALID_ACTOR_ID;
-	}
-	return actor->getID();
+	return static_cast<IPlayer*>(player)->getTargetPlayer();
 }
 
-float Player_GetCameraAspectRatio(int playerid)
+IActor* Player_GetTargetActor(IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getAimData().aspectRatio;
+	return static_cast<IPlayer*>(player)->getTargetActor();
 }
 
-float Player_GetCameraZoom(int playerid)
+void Player_SetRemoteVehicleCollisions(IEntity* player, bool collide)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getAimData().camZoom;
+	static_cast<IPlayer*>(player)->setRemoteVehicleCollisions(collide);
 }
 
-bool Player_AttachCameraToObject(int playerid, int objectid)
+void Player_SpectatePlayer(IEntity* player, IEntity* target, PlayerSpectateMode mode)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_OBJECT_CHECKED(object, objectid)
-	{
-		return false;
-	}
-	player->attachCameraToObject(*object);
-	return true;
+	static_cast<IPlayer*>(player)->spectatePlayer(*static_cast<IPlayer*>(target), mode);
 }
 
-bool Player_InterpolateCameraPos(int playerid, float from_x, float from_y, float from_z, float to_x, float to_y, float to_z, int time, int cut_type)
+void Player_SpectateVehicle(IEntity* player, IVehicle* target, PlayerSpectateMode mode)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->interpolateCameraPosition(glm::vec3(from_x, from_y, from_z), glm::vec3(to_x, to_y, to_z), time, static_cast<PlayerCameraCutType>(cut_type));
-	return true;
+	static_cast<IPlayer*>(player)->spectateVehicle(*target, mode);
 }
 
-bool Player_InterpolateCameraLookAt(int playerid, float from_x, float from_y, float from_z, float to_x, float to_y, float to_z, int time, int cut_type)
+const PlayerSpectateData Player_GetSpectateData(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->interpolateCameraLookAt(glm::vec3(from_x, from_y, from_z), glm::vec3(to_x, to_y, to_z), time, static_cast<PlayerCameraCutType>(cut_type));
-	return true;
+	return static_cast<const IPlayer*>(player)->getSpectateData();
 }
 
-bool Player_IsConnected(int playerid)
+void Player_SendClientCheck(IEntity* player, int actionType, int address, int offset, int count)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	return true;
+	static_cast<IPlayer*>(player)->sendClientCheck(actionType, address, offset, count);
 }
 
-bool Player_IsInVehicle(int playerid, int vehicleid)
+void Player_ToggleGhostMode(IEntity* player, bool toggle)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerVehicleData>(player);
-	if (data == nullptr)
-	{
-		return false;
-	}
-	auto vehicle = data->getVehicle();
-	return vehicle != nullptr && vehicle->getID() == vehicleid;
+	static_cast<IPlayer*>(player)->toggleGhostMode(toggle);
 }
 
-bool Player_IsInAnyVehicle(int playerid)
+bool Player_IsGhostModeEnabled(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerVehicleData>(player);
-	return data != nullptr && data->getVehicle() != nullptr;
+	return static_cast<const IPlayer*>(player)->isGhostModeEnabled();
 }
 
-bool Player_IsInCheckpoint(int playerid)
+int Player_GetDefaultObjectsRemoved(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerCheckpointData>(player);
-	return data->getCheckpoint().isPlayerInside();
+	return static_cast<const IPlayer*>(player)->getDefaultObjectsRemoved();
 }
 
-bool Player_IsInRaceCheckpoint(int playerid)
+bool Player_GetKickStatus(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	auto data = queryExtension<IPlayerCheckpointData>(player);
-	return data->getRaceCheckpoint().isPlayerInside();
+	return static_cast<const IPlayer*>(player)->getKickStatus();
 }
 
-bool Player_SetVirtualWorld(int playerid, int worldid)
+void Player_ClearTasks(IEntity* player, PlayerAnimationSyncType syncType)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setVirtualWorld(worldid);
-	return true;
+	static_cast<IPlayer*>(player)->clearTasks(syncType);
 }
 
-int Player_GetVirtualWorld(int playerid)
+void Player_AllowWeapons(IEntity* player, bool allow)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return 0;
-	}
-	return player->getVirtualWorld();
+	static_cast<IPlayer*>(player)->allowWeapons(allow);
 }
 
-bool Player_EnableStuntBonus(int playerid, bool enable)
+bool Player_AreWeaponsAllowed(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->useStuntBonuses(enable);
-	return true;
+	return static_cast<const IPlayer*>(player)->areWeaponsAllowed();
 }
 
-bool Player_ToggleSpectating(int playerid, bool toggle)
+void Player_AllowTeleport(IEntity* player, bool allow)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->setSpectating(toggle);
-	return true;
+	static_cast<IPlayer*>(player)->allowTeleport(allow);
 }
 
-bool Player_SpectatePlayer(int playerid, int targetplayerid, int mode)
+bool Player_IsTeleportAllowed(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_PLAYER_CHECKED(target, targetplayerid)
-	{
-		return false;
-	}
-	player->spectatePlayer(*target, static_cast<PlayerSpectateMode>(mode));
-	return true;
+	return static_cast<const IPlayer*>(player)->isTeleportAllowed();
 }
 
-bool Player_CreateExplosion(int playerid, float x, float y, float z, int type, float radius)
+bool Player_IsUsingOfficialClient(const IEntity* player)
 {
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	player->createExplosion(glm::vec3(x, y, z), type, radius);
-	return true;
+	return static_cast<const IPlayer*>(player)->isUsingOfficialClient();
 }
-
-bool Player_SpectateVehicle(int playerid, int targetvehicleid, int mode)
-{
-	GET_PLAYER_CHECKED(player, playerid)
-	{
-		return false;
-	}
-	GET_VEHICLE_CHECKED(vehicle, targetvehicleid)
-	{
-		return false;
-	}
-	player->spectateVehicle(*vehicle, static_cast<PlayerSpectateMode>(mode));
-	return true;
-}
-
-// bool Player_StartRecordingData(int playerid, int recordtype, const char* recordname)
-// {
-// 	GET_PLAYER_CHECKED(player, playerid)
-// 	{
-// 		return false;
-// 	}
-// 	return true;
-// }
-// bool Player_StopRecordingData(int playerid)
-// {
-// 	GET_PLAYER_CHECKED(player, playerid)
-// 	{
-// 		return false;
-// 	}
-// 	return true;
-// }
-// bool GetAnimationName(int index, char* anim_lib, int anim_lib_size, char* anim_name, int anim_name_size)
-// {
-// 	GET_PLAYER_CHECKED(player, playerid)
-// 	{
-// 		return false;
-// 	}
-// 	return true;
-// }
