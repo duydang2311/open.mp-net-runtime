@@ -198,6 +198,26 @@ ITextDrawBase* TextDraw_CreatePreviewModel(Vector2 position, int model)
 	return MainComponent::getInstance()->getTextDrawComponent()->create(position, model);
 }
 
+void TextDraw_ShowForPlayer(ITextDrawBase* td, IEntity* player)
+{
+	static_cast<ITextDraw*>(td)->showForPlayer(*static_cast<IPlayer*>(player));
+}
+
+void TextDraw_HideForPlayer(ITextDrawBase* td, IEntity* player)
+{
+	static_cast<ITextDraw*>(td)->hideForPlayer(*static_cast<IPlayer*>(player));
+}
+
+bool TextDraw_IsShownForPlayer(ITextDrawBase* td, const IEntity* player)
+{
+	return static_cast<ITextDraw*>(td)->isShownForPlayer(*static_cast<const IPlayer*>(player));
+}
+
+void TextDraw_SetTextForPlayer(ITextDrawBase* td, IEntity* player, const char* text)
+{
+	static_cast<ITextDraw*>(td)->setTextForPlayer(*static_cast<IPlayer*>(player), text);
+}
+
 void Player_BeginSelection(IEntity* player, uint32_t argb)
 {
 	queryExtension<IPlayerTextDrawData>(static_cast<IPlayer*>(player))->beginSelection(Colour::FromARGB(argb));
@@ -221,4 +241,19 @@ ITextDrawBase* PlayerTextDraw_CreateText(IEntity* player, Vector2 position, cons
 ITextDrawBase* PlayerTextDraw_CreatePreviewModel(IEntity* player, Vector2 position, int model)
 {
 	return queryExtension<IPlayerTextDrawData>(static_cast<IPlayer*>(player))->create(position, model);
+}
+
+void PlayerTextDraw_Show(ITextDrawBase* td)
+{
+	static_cast<IPlayerTextDraw*>(td)->show();
+}
+
+void PlayerTextDraw_Hide(ITextDrawBase* td)
+{
+	static_cast<IPlayerTextDraw*>(td)->hide();
+}
+
+bool PlayerTextDraw_IsShown(ITextDrawBase* td)
+{
+	return static_cast<IPlayerTextDraw*>(td)->isShown();
 }

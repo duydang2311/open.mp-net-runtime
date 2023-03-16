@@ -43,9 +43,17 @@ DLL_EXPORT void TextDrawBase_Restream(ITextDrawBase* td);
 
 DLL_EXPORT ITextDrawBase* TextDraw_CreateText(Vector2 position, const char* text);
 DLL_EXPORT ITextDrawBase* TextDraw_CreatePreviewModel(Vector2 position, int model);
+DLL_EXPORT void TextDraw_ShowForPlayer(ITextDrawBase* td, IEntity* player);
+DLL_EXPORT void TextDraw_HideForPlayer(ITextDrawBase* td, IEntity* player);
+DLL_EXPORT bool TextDraw_IsShownForPlayer(ITextDrawBase* td, const IEntity* player);
+DLL_EXPORT void TextDraw_SetTextForPlayer(ITextDrawBase* td, IEntity* player, const char* text);
 
 DLL_EXPORT void Player_BeginSelection(IEntity* player, uint32_t highlight);
 DLL_EXPORT bool Player_IsSelecting(IEntity* player);
 DLL_EXPORT void Player_EndSelection(IEntity* player);
 DLL_EXPORT ITextDrawBase* PlayerTextDraw_CreateText(IEntity* player, Vector2 position, const char* text);
 DLL_EXPORT ITextDrawBase* PlayerTextDraw_CreatePreviewModel(IEntity* player, Vector2 position, int model);
+
+DLL_EXPORT void PlayerTextDraw_Show(ITextDrawBase* td);
+DLL_EXPORT void PlayerTextDraw_Hide(ITextDrawBase* td);
+DLL_EXPORT bool PlayerTextDraw_IsShown(ITextDrawBase* td);
