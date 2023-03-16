@@ -1,6 +1,19 @@
 #include "Server/Components/Objects/objects.hpp"
 #include "src/c-api/player.hpp"
+#include "src/component.hpp"
 #include "types.hpp"
+
+IEntity* Player_GetHandleById(int id)
+{
+	for (auto& p : MainComponent::getInstance()->getCore()->getPlayers().entries())
+	{
+		if (p->getID() == id)
+		{
+			return static_cast<IEntity*>(p);
+		}
+	}
+	return nullptr;
+}
 
 void Player_Kick(IEntity* player)
 {

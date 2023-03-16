@@ -3,6 +3,7 @@
 #include "src/utils/export.hpp"
 #include "src/interop.hpp"
 
+DLL_EXPORT IEntity* Player_GetHandleById(int id);
 DLL_EXPORT void Player_Kick(IEntity* player);
 DLL_EXPORT void Player_Ban(IEntity* player, const char* reason = "");
 DLL_EXPORT bool Player_IsBot(const IEntity* player);
