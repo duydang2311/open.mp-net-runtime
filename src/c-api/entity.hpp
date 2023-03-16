@@ -5,6 +5,7 @@
 #include "types.hpp"
 #include "src/utils/export.hpp"
 
+DLL_EXPORT int Entity_GetId(const IEntity* entity);
 DLL_EXPORT Vector3 Entity_GetPosition(const IEntity* entity);
 DLL_EXPORT void Entity_SetPosition(IEntity* entity, Vector3 position);
 DLL_EXPORT Vector3 Entity_GetRotation(const IEntity* entity);

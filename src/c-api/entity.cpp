@@ -1,6 +1,11 @@
 #include "src/c-api/entity.hpp"
 #include "src/component.hpp"
 
+int Entity_GetId(const IEntity* entity)
+{
+	return entity->getID();
+}
+
 Vector3 Entity_GetPosition(const IEntity* entity)
 {
 	return entity->getPosition();
