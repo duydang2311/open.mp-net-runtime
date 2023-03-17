@@ -481,6 +481,8 @@ std::size_t Player_GetStreamedPlayers(IEntity* player, IEntity*** streamedPlayer
 	{
 		*(*streamedPlayers + idx++) = static_cast<IEntity*>(i);
 	}
+
+	// TODO: Free it on managed side or something
 	return size;
 }
 
