@@ -2,9 +2,18 @@
 
 #include "src/c-api/vehicles.hpp"
 
-void Vehicle_SetSpawnData(IEntity* vehicle, const VehicleSpawnData& data)
+void Vehicle_SetSpawnData(IEntity* vehicle, const CVehicleSpawnData& data)
 {
-	static_cast<IVehicle*>(vehicle)->setSpawnData(data);
+	static_cast<IVehicle*>(vehicle)->setSpawnData(VehicleSpawnData {
+		Seconds(data.respawnDelay),
+		data.modelID,
+		data.position,
+		data.zRotation,
+		data.colour1,
+		data.colour2,
+		data.siren,
+		data.interior,
+	});
 }
 
 CVehicleSpawnData Vehicle_GetSpawnData(IEntity* vehicle)
@@ -190,15 +199,49 @@ float Vehicle_GetZAngle(IEntity* vehicle)
 }
 
 // Set the vehicle's parameters.
-void Vehicle_SetParams(IEntity* vehicle, const VehicleParams& params)
+void Vehicle_SetParams(IEntity* vehicle, const CVehicleParams& params)
 {
-	static_cast<IVehicle*>(vehicle)->setParams(params);
+	static_cast<IVehicle*>(vehicle)->setParams(VehicleParams {
+		params.engine,
+		params.lights,
+		params.alarm,
+		params.doors,
+		params.bonnet,
+		params.boot,
+		params.objective,
+		params.siren,
+		params.doorDriver,
+		params.doorPassenger,
+		params.doorBackLeft,
+		params.doorBackRight,
+		params.windowDriver,
+		params.windowPassenger,
+		params.windowBackLeft,
+		params.windowBackRight
+	});
 }
 
 // Set the vehicle's parameters for a specific player.
-void Vehicle_SetParamsForPlayer(IEntity* vehicle, IEntity* player, const VehicleParams& params)
+void Vehicle_SetParamsForPlayer(IEntity* vehicle, IEntity* player, const CVehicleParams& params)
 {
-	static_cast<IVehicle*>(vehicle)->setParamsForPlayer(*static_cast<IPlayer*>(player), params);
+	static_cast<IVehicle*>(vehicle)->setParamsForPlayer(*static_cast<IPlayer*>(player), VehicleParams {
+		params.engine,
+		params.lights,
+		params.alarm,
+		params.doors,
+		params.bonnet,
+		params.boot,
+		params.objective,
+		params.siren,
+		params.doorDriver,
+		params.doorPassenger,
+		params.doorBackLeft,
+		params.doorBackRight,
+		params.windowDriver,
+		params.windowPassenger,
+		params.windowBackLeft,
+		params.windowBackRight
+	});
 }
 
 // Get the vehicle's parameters.

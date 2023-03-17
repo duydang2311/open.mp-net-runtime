@@ -5,7 +5,7 @@
 #include "src/interop.hpp"
 
 /// Set the inital spawn data of the vehicle
-DLL_EXPORT void Vehicle_SetSpawnData(IEntity* vehicle, const VehicleSpawnData& data);
+DLL_EXPORT void Vehicle_SetSpawnData(IEntity* vehicle, const CVehicleSpawnData& data);
 
 /// Get the initial spawn data of the vehicle
 DLL_EXPORT CVehicleSpawnData Vehicle_GetSpawnData(IEntity* vehicle);
@@ -89,10 +89,10 @@ DLL_EXPORT void Vehicle_SetZAngle(IEntity* vehicle, float angle);
 DLL_EXPORT float Vehicle_GetZAngle(IEntity* vehicle);
 
 // Set the vehicle's parameters.
-DLL_EXPORT void Vehicle_SetParams(IEntity* vehicle, const VehicleParams& params);
+DLL_EXPORT void Vehicle_SetParams(IEntity* vehicle, const CVehicleParams& params);
 
 // Set the vehicle's parameters for a specific player.
-DLL_EXPORT void Vehicle_SetParamsForPlayer(IEntity* vehicle, IEntity* player, const VehicleParams& params);
+DLL_EXPORT void Vehicle_SetParamsForPlayer(IEntity* vehicle, IEntity* player, const CVehicleParams& params);
 
 // Get the vehicle's parameters.
 DLL_EXPORT CVehicleParams Vehicle_GetParams(IEntity* vehicle);
