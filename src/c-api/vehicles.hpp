@@ -12,7 +12,7 @@ DLL_EXPORT void Vehicle_SetSpawnData(IEntity* vehicle, const CVehicleSpawnData& 
 DLL_EXPORT CVehicleSpawnData Vehicle_GetSpawnData(IEntity* vehicle);
 
 /// Checks if player has the vehicle streamed in for themselves
-DLL_EXPORT bool Vehicle_IsStreamedInForPlayer(IEntity* vehicle, IEntity* player);
+DLL_EXPORT bool Vehicle_IsStreamedInForPlayer(const IEntity* vehicle, IEntity* player);
 
 /// Streams in the vehicle for a specific player
 DLL_EXPORT void Vehicle_StreamInForPlayer(IEntity* vehicle, IEntity* player);
@@ -24,7 +24,7 @@ DLL_EXPORT void Vehicle_StreamOutForPlayer(IEntity* vehicle, IEntity* player);
 DLL_EXPORT void Vehicle_SetColour(IEntity* vehicle, int col1, int col2);
 
 /// Get the vehicle's colour
-DLL_EXPORT void Vehicle_GetColour(IEntity* vehicle, int* primaryColor, int* secondaryColor);
+DLL_EXPORT void Vehicle_GetColour(const IEntity* vehicle, int* primaryColor, int* secondaryColor);
 
 /// Set the vehicle's health
 DLL_EXPORT void Vehicle_SetHealth(IEntity* vehicle, float health);
@@ -45,7 +45,7 @@ DLL_EXPORT bool Vehicle_UpdateFromUnoccupied(IEntity* vehicle, const VehicleUnoc
 DLL_EXPORT bool Vehicle_UpdateFromTrailerSync(IEntity* vehicle, const VehicleTrailerSyncPacket& unoccupiedSync, IEntity* player);
 
 /// Get the players which the vehicle is streamed for
-DLL_EXPORT std::size_t Vehicle_StreamedForPlayers(IEntity* vehicle, IEntity*** players_ptr);
+DLL_EXPORT std::size_t Vehicle_StreamedForPlayers(const IEntity* vehicle, IEntity*** players_ptr);
 
 /// Returns the current driver of the vehicle
 DLL_EXPORT IEntity* Vehicle_GetDriver(IEntity* vehicle);
@@ -126,13 +126,13 @@ DLL_EXPORT void Vehicle_AttachTrailer(IEntity* vehicle, IEntity* trailer);
 DLL_EXPORT void Vehicle_DetachTrailer(IEntity* vehicle);
 
 /// Checks if the current vehicle is a trailer.
-DLL_EXPORT bool Vehicle_IsTrailer(IEntity* vehicle);
+DLL_EXPORT bool Vehicle_IsTrailer(const IEntity* vehicle);
 
 /// Get the current vehicle's attached trailer.
-DLL_EXPORT IEntity* Vehicle_GetTrailer(IEntity* vehicle);
+DLL_EXPORT IEntity* Vehicle_GetTrailer(const IEntity* vehicle);
 
 /// Get the current vehicle's cab.
-DLL_EXPORT IEntity* Vehicle_GetCab(IEntity* vehicle);
+DLL_EXPORT IEntity* Vehicle_GetCab(const IEntity* vehicle);
 
 /// Fully repair the vehicle.
 DLL_EXPORT void Vehicle_Repair(IEntity* vehicle);
@@ -178,13 +178,13 @@ DLL_EXPORT bool Vehicle_IsOccupied(IEntity* vehicle);
 DLL_EXPORT void Vehicle_SetSiren(IEntity* vehicle, bool status);
 
 /// Get vehicle siren status.
-DLL_EXPORT uint8_t Vehicle_GetSirenState(IEntity* vehicle);
+DLL_EXPORT uint8_t Vehicle_GetSirenState(const IEntity* vehicle);
 
 /// Get hydra thrust angle
-DLL_EXPORT uint32_t Vehicle_GetHydraThrustAngle(IEntity* vehicle);
+DLL_EXPORT uint32_t Vehicle_GetHydraThrustAngle(const IEntity* vehicle);
 
 /// Get train speed
-DLL_EXPORT float Vehicle_GetTrainSpeed(IEntity* vehicle);
+DLL_EXPORT float Vehicle_GetTrainSpeed(const IEntity* vehicle);
 
 /// Get last driver's pool id
-DLL_EXPORT int Vehicle_GetLastDriverPoolID(IEntity* vehicle);
+DLL_EXPORT int Vehicle_GetLastDriverPoolID(const IEntity* vehicle);

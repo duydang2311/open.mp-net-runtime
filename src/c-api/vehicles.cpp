@@ -31,9 +31,9 @@ CVehicleSpawnData Vehicle_GetSpawnData(IEntity* vehicle)
 	};
 }
 
-bool Vehicle_IsStreamedInForPlayer(IEntity* vehicle, IEntity* player)
+bool Vehicle_IsStreamedInForPlayer(const IEntity* vehicle, IEntity* player)
 {
-	return static_cast<IVehicle*>(vehicle)->isStreamedInForPlayer(*static_cast<IPlayer*>(player));
+	return static_cast<const IVehicle*>(vehicle)->isStreamedInForPlayer(*static_cast<IPlayer*>(player));
 }
 
 void Vehicle_StreamInForPlayer(IEntity* vehicle, IEntity* player)
@@ -51,9 +51,9 @@ void Vehicle_SetColour(IEntity* vehicle, int col1, int col2)
 	static_cast<IVehicle*>(vehicle)->setColour(col1, col2);
 }
 
-void Vehicle_GetColour(IEntity* vehicle, int* primaryColor, int* secondaryColor)
+void Vehicle_GetColour(const IEntity* vehicle, int* primaryColor, int* secondaryColor)
 {
-	auto pair = static_cast<IVehicle*>(vehicle)->getColour();
+	auto pair = static_cast<const IVehicle*>(vehicle)->getColour();
 	*primaryColor = pair.first;
 	*secondaryColor = pair.second;
 }
@@ -109,9 +109,9 @@ bool Vehicle_UpdateFromTrailerSync(IEntity* vehicle, const VehicleTrailerSyncPac
 	return static_cast<IVehicle*>(vehicle)->updateFromTrailerSync(unoccupiedSync, *static_cast<IPlayer*>(player));
 }
 
-std::size_t Vehicle_StreamedForPlayers(IEntity* vehicle, IEntity*** players_ptr)
+std::size_t Vehicle_StreamedForPlayers(const IEntity* vehicle, IEntity*** players_ptr)
 {
-	auto players = static_cast<IVehicle*>(vehicle)->streamedForPlayers();
+	auto players = static_cast<const IVehicle*>(vehicle)->streamedForPlayers();
 	auto size = players.size();
 	*players_ptr = new IEntity*[size];
 	std::size_t i = 0;
@@ -299,19 +299,19 @@ void Vehicle_DetachTrailer(IEntity* vehicle)
 	static_cast<IVehicle*>(vehicle)->detachTrailer();
 }
 
-bool Vehicle_IsTrailer(IEntity* vehicle)
+bool Vehicle_IsTrailer(const IEntity* vehicle)
 {
-	return static_cast<IVehicle*>(vehicle)->isTrailer();
+	return static_cast<const IVehicle*>(vehicle)->isTrailer();
 }
 
-IEntity* Vehicle_GetTrailer(IEntity* vehicle)
+IEntity* Vehicle_GetTrailer(const IEntity* vehicle)
 {
-	return static_cast<IVehicle*>(vehicle)->getTrailer();
+	return static_cast<const IVehicle*>(vehicle)->getTrailer();
 }
 
 IEntity* Vehicle_GetCab(IEntity* vehicle)
 {
-	return static_cast<IVehicle*>(vehicle)->getCab();
+	return static_cast<const IVehicle*>(vehicle)->getCab();
 }
 
 void Vehicle_Repair(IEntity* vehicle)
@@ -397,22 +397,22 @@ void Vehicle_SetSiren(IEntity* vehicle, bool status)
 	static_cast<IVehicle*>(vehicle)->setSiren(status);
 }
 
-uint8_t Vehicle_GetSirenState(IEntity* vehicle)
+uint8_t Vehicle_GetSirenState(const IEntity* vehicle)
 {
-	return static_cast<IVehicle*>(vehicle)->getSirenState();
+	return static_cast<const IVehicle*>(vehicle)->getSirenState();
 }
 
-uint32_t Vehicle_GetHydraThrustAngle(IEntity* vehicle)
+uint32_t Vehicle_GetHydraThrustAngle(const IEntity* vehicle)
 {
-	return static_cast<IVehicle*>(vehicle)->getHydraThrustAngle();
+	return static_cast<const IVehicle*>(vehicle)->getHydraThrustAngle();
 }
 
-float Vehicle_GetTrainSpeed(IEntity* vehicle)
+float Vehicle_GetTrainSpeed(const IEntity* vehicle)
 {
-	return static_cast<IVehicle*>(vehicle)->getTrainSpeed();
+	return static_cast<const IVehicle*>(vehicle)->getTrainSpeed();
 }
 
-int Vehicle_GetLastDriverPoolID(IEntity* vehicle)
+int Vehicle_GetLastDriverPoolID(const IEntity* vehicle)
 {
-	return static_cast<IVehicle*>(vehicle)->getLastDriverPoolID();
+	return static_cast<const IVehicle*>(vehicle)->getLastDriverPoolID();
 }
