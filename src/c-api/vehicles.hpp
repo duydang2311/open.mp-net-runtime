@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Server/Components/Vehicles/vehicles.hpp"
+#include "entity.hpp"
 #include "src/utils/export.hpp"
 #include "src/interop.hpp"
 
@@ -44,13 +45,13 @@ DLL_EXPORT bool Vehicle_UpdateFromUnoccupied(IEntity* vehicle, const VehicleUnoc
 DLL_EXPORT bool Vehicle_UpdateFromTrailerSync(IEntity* vehicle, const VehicleTrailerSyncPacket& unoccupiedSync, IEntity* player);
 
 /// Get the players which the vehicle is streamed for
-DLL_EXPORT IEntity** Vehicle_StreamedForPlayers(IEntity* vehicle);
+DLL_EXPORT std::size_t Vehicle_StreamedForPlayers(IEntity* vehicle, IEntity*** players_ptr);
 
 /// Returns the current driver of the vehicle
 DLL_EXPORT IEntity* Vehicle_GetDriver(IEntity* vehicle);
 
 /// Returns the passengers of the vehicle
-DLL_EXPORT IEntity** Vehicle_GetPassengers(IEntity* vehicle);
+DLL_EXPORT std::size_t Vehicle_GetPassengers(IEntity* vehicle, IEntity*** passengers_ptr);
 
 /// Sets the vehicle's number plate
 DLL_EXPORT void Vehicle_SetPlate(IEntity* vehicle, const char* plate);
@@ -138,8 +139,10 @@ DLL_EXPORT void Vehicle_Repair(IEntity* vehicle);
 
 /// Adds a train carriage to the vehicle (ONLY FOR TRAINS).
 DLL_EXPORT void Vehicle_AddCarriage(IEntity* vehicle, IEntity* carriage, int pos);
+
 DLL_EXPORT void Vehicle_UpdateCarriage(IEntity* vehicle, Vector3 pos, Vector3 veloc);
-DLL_EXPORT IEntity** Vehicle_GetCarriages(IEntity* vehicle);
+
+DLL_EXPORT std::size_t Vehicle_GetCarriages(IEntity* vehicle, IEntity*** carriages_ptr);
 
 /// Sets the velocity of the vehicle.
 DLL_EXPORT void Vehicle_SetVelocity(IEntity* vehicle, Vector3 velocity);

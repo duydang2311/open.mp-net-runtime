@@ -109,16 +109,17 @@ bool Vehicle_UpdateFromTrailerSync(IEntity* vehicle, const VehicleTrailerSyncPac
 	return static_cast<IVehicle*>(vehicle)->updateFromTrailerSync(unoccupiedSync, *static_cast<IPlayer*>(player));
 }
 
-IEntity** Vehicle_StreamedForPlayers(IEntity* vehicle)
+std::size_t Vehicle_StreamedForPlayers(IEntity* vehicle, IEntity*** players_ptr)
 {
 	auto players = static_cast<IVehicle*>(vehicle)->streamedForPlayers();
-	IEntity** entities = new IEntity*[players.size()];
+	auto size = players.size();
+	*players_ptr = new IEntity*[size];
 	std::size_t i = 0;
-	for(auto ptr: players)
+	for (auto ptr : players)
 	{
-		entities[i++] = ptr;
+		(*players_ptr)[i++] = ptr;
 	}
-	return entities;
+	return size;
 }
 
 IEntity* Vehicle_GetDriver(IEntity* vehicle)
@@ -126,16 +127,17 @@ IEntity* Vehicle_GetDriver(IEntity* vehicle)
 	return static_cast<IVehicle*>(vehicle)->getDriver();
 }
 
-IEntity** Vehicle_GetPassengers(IEntity* vehicle)
+std::size_t Vehicle_GetPassengers(IEntity* vehicle, IEntity*** passengers_ptr)
 {
 	auto passengers = static_cast<IVehicle*>(vehicle)->getPassengers();
-	IEntity** entities = new IEntity*[passengers.size()];
+	auto size = passengers.size();
+	*passengers_ptr = new IEntity*[size];
 	std::size_t i = 0;
-	for(auto ptr: passengers)
+	for (auto ptr : passengers)
 	{
-		entities[i++] = ptr;
+		(*passengers_ptr)[i++] = ptr;
 	}
-	return entities;
+	return size;
 }
 
 void Vehicle_SetPlate(IEntity* vehicle, const char* plate)
@@ -217,31 +219,13 @@ void Vehicle_SetParams(IEntity* vehicle, const CVehicleParams& params)
 		params.windowDriver,
 		params.windowPassenger,
 		params.windowBackLeft,
-		params.windowBackRight
-	});
+		params.windowBackRight });
 }
 
 // Set the vehicle's parameters for a specific player.
 void Vehicle_SetParamsForPlayer(IEntity* vehicle, IEntity* player, const CVehicleParams& params)
 {
-	static_cast<IVehicle*>(vehicle)->setParamsForPlayer(*static_cast<IPlayer*>(player), VehicleParams {
-		params.engine,
-		params.lights,
-		params.alarm,
-		params.doors,
-		params.bonnet,
-		params.boot,
-		params.objective,
-		params.siren,
-		params.doorDriver,
-		params.doorPassenger,
-		params.doorBackLeft,
-		params.doorBackRight,
-		params.windowDriver,
-		params.windowPassenger,
-		params.windowBackLeft,
-		params.windowBackRight
-	});
+	static_cast<IVehicle*>(vehicle)->setParamsForPlayer(*static_cast<IPlayer*>(player), VehicleParams { params.engine, params.lights, params.alarm, params.doors, params.bonnet, params.boot, params.objective, params.siren, params.doorDriver, params.doorPassenger, params.doorBackLeft, params.doorBackRight, params.windowDriver, params.windowPassenger, params.windowBackLeft, params.windowBackRight });
 }
 
 // Get the vehicle's parameters.
@@ -345,16 +329,17 @@ void Vehicle_UpdateCarriage(IEntity* vehicle, Vector3 pos, Vector3 veloc)
 	static_cast<IVehicle*>(vehicle)->updateCarriage(pos, veloc);
 }
 
-IEntity** Vehicle_GetCarriages(IEntity* vehicle)
+std::size_t Vehicle_GetCarriages(IEntity* vehicle, IEntity*** carriages_ptr)
 {
 	auto carriages = static_cast<IVehicle*>(vehicle)->getCarriages();
-	IEntity** entities = new IEntity*[carriages.size()];
+	auto size = carriages.size();
+	*carriages_ptr = new IEntity*[size];
 	std::size_t i = 0;
-	for(auto ptr: carriages)
+	for (auto ptr : carriages)
 	{
-		entities[i++] = ptr;
+		(*carriages_ptr)[i++] = ptr;
 	}
-	return entities;
+	return size;
 }
 
 void Vehicle_SetVelocity(IEntity* vehicle, Vector3 velocity)
